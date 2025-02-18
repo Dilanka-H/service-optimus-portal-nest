@@ -1,6 +1,7 @@
 import { MongoConfiguration } from "src/config/mongo.config";
 import { applyEncryption } from "../encryption.helper";
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
+import { Document } from 'mongoose';
 
 export type SaleOrdersDocument = SaleOrders & Document;
 
@@ -71,7 +72,7 @@ export class SaleOrders {
   addressInfo: AddressInfo;
 
   @Prop({ type: Object })
-  moreInfo: Object;
+  moreInfo: object;
 
   @Prop({ type: String })
   updatedBy: string;

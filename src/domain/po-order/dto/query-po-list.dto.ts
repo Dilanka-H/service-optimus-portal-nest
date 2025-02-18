@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, IsOptional, IsArray, IsDate, IsBoolean } from 'class-validator';
+import { IsArray, IsOptional, IsString, Matches } from 'class-validator';
+import { RequireBothFields } from 'src/common/decorators/validation.decorator';
 
 export class QueryPoListDto {
   @IsString()
@@ -14,11 +15,15 @@ export class QueryPoListDto {
   POStatus: string[];
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {message: `POstartDate must be in the format "YYYY-MM-DD"`})
+  @RequireBothFields("POendDate")
   POstartDate: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {message: `POendDate must be in the format "YYYY-MM-DD"`})
+  @RequireBothFields("POstartDate")
   POendDate: string;
 
   @IsArray()

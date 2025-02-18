@@ -1,10 +1,10 @@
 import { Transform } from 'class-transformer';
-import { IsString, IsNotEmpty, IsOptional, IsArray, IsDate, IsBoolean } from 'class-validator';
+import { IsArray, IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class ReservePoJobToProcessDto {
-  @IsString()
+  @IsArray()
   @IsNotEmpty()
-  jobId: string;
+  jobId: string[];
 
   @IsBoolean()
   @IsOptional()
@@ -12,5 +12,13 @@ export class ReservePoJobToProcessDto {
   reserveFlag: boolean;
 
   @IsString()
-  tokenUser?: string
+  @IsNotEmpty()
+  action: string;
+
+  @IsString()
+  @IsOptional()
+  SIMGroup?: string;
+
+  // @IsString()
+  tokenUser?: string;
 }

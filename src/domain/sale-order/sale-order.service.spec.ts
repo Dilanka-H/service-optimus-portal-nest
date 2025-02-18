@@ -5,7 +5,7 @@ import { UpdateJobListDto } from './dto/update-job-list.dto';
 
 describe('SaleOrderService', () => {
   let service: SaleOrderService;
-  let optimusJobListsService: OptimusJobListsService;
+  // let optimusJobListsService: OptimusJobListsService;
 
   const mockOptimusJobListsService = {
     updateJobList: jest.fn(),
@@ -50,7 +50,7 @@ describe('SaleOrderService', () => {
     }).compile();
 
     service = module.get<SaleOrderService>(SaleOrderService);
-    optimusJobListsService = module.get<OptimusJobListsService>(OptimusJobListsService);
+    // optimusJobListsService = module.get<OptimusJobListsService>(OptimusJobListsService);
   });
 
   afterEach(() => {

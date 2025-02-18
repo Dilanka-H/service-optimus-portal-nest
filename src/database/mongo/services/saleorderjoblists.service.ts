@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Response } from '../interfaces';
-import { SaleOrderJobLists } from '../schema/saleorderjoblists.schema';
+import { MongoUpdateResponse } from 'src/common/interfaces/database_domain.interface';
+import { SaleOrderJobLists, SaleOrderJobListsDocument } from '../schema/saleorderjoblists.schema';
 
 @Injectable()
 export class SaleOrderJobListsService {
@@ -10,15 +10,15 @@ export class SaleOrderJobListsService {
     @InjectModel(SaleOrderJobLists.name) private saleorderJobListsModel: Model<SaleOrderJobLists>,
   ) {}
 
-  async updateJobList(condition: Object, updateData: Object): Promise<Response> {
-    const result: Response = {
+  async updateJobList(condition: object, updateData: object): Promise<MongoUpdateResponse> {
+    const result: MongoUpdateResponse = {
       acknowledged: true,
       upsertedId: null, 
       upsertedCount: 0, 
       matchedCount: 1, 
       modifiedCount: 1
     };
-    const jobList = await this.saleorderJobListsModel.find(condition).exec();
+    const jobList = await this.findSaleOrderJobList(condition);
 
     if (!jobList) {
       result.acknowledged = true
@@ -46,8 +46,8 @@ export class SaleOrderJobListsService {
     return result
   }
 
-  async findAll(): Promise<SaleOrderJobLists[]> {
-    return this.saleorderJobListsModel.find().exec();
+  async findSaleOrderJobList(condition: any): Promise<SaleOrderJobListsDocument[]> {
+    return this.saleorderJobListsModel.find(condition).exec();
   }
 
   async createJob(jobData) {

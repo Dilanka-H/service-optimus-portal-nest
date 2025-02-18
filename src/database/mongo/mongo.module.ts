@@ -31,6 +31,7 @@ import { PoHeaders, PoHeadersSchema } from "./schema/po_headers.schema";
 import { PoHeadersService } from "./services/po_headers.service";
 import { PoJobs, PoJobsSchema } from "./schema/po_jobs.schema";
 import { PoJobsService } from "./services/po_jobs.service";
+import { encryptMasterCustomersSchema, MasterCustomers, MasterCustomersSchema } from "./schema/master_customers.schema";
 
 @Module({
   imports: [
@@ -210,6 +211,14 @@ import { PoJobsService } from "./services/po_jobs.service";
         useFactory: async () => {
           return PoJobsSchema;
         },
+      },
+      {
+        name: MasterCustomers.name,
+        useFactory: async (mongoConfig: MongoConfiguration) => {
+          encryptMasterCustomersSchema(mongoConfig);
+          return MasterCustomersSchema;
+        },
+        inject: [MongoConfiguration],
       },
     ]),
   ],

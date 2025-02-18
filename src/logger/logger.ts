@@ -1,7 +1,7 @@
 // src/logger/logger.ts
 
-import { ILogOption, IInfoLog, IAccessLog, IRootLog, IServiceLog } from "./interface";
 import { LoggerFormat } from './format';
+import { IAccessLog, IInfoLog, ILogOption, IRootLog, IServiceLog } from "./interface";
 
 export default class Logger {
     private loggerFormat: LoggerFormat;
@@ -14,7 +14,7 @@ export default class Logger {
 
     public appLog(message: IInfoLog): void {
         if (this.options.stdout) {
-            const formattedLog = this.loggerFormat.appLogFormat(message, this.options);
+            const formattedLog = this.loggerFormat.appLogFormat(message);
             console.log(formattedLog);
         }
     }

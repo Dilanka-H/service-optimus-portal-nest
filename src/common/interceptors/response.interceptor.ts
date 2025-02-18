@@ -1,16 +1,17 @@
 import {
-    Injectable,
-    NestInterceptor,
-    ExecutionContext,
-    CallHandler,
-  } from '@nestjs/common';
-  import { Observable } from 'rxjs';
-  import { map } from 'rxjs/operators';
-  import { StandardResponse } from '../interfaces/response.interface';
-  import * as constants from "../constants"
-import { populateMetricLabels } from '../utils';
-import { MetricsService } from '../metrics/metrics.service';
+  CallHandler,
+  ExecutionContext,
+  HttpStatus,
+  Injectable,
+  NestInterceptor,
+} from '@nestjs/common';
 import { Request } from 'express';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import * as constants from "../constants";
+import { StandardResponse } from '../interfaces/response.interface';
+import { MetricsService } from '../metrics/metrics.service';
+import { populateMetricLabels } from '../utils';
   
   @Injectable()
 export class StandardResponseInterceptor implements NestInterceptor {
@@ -20,6 +21,7 @@ export class StandardResponseInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request: Request = context.switchToHttp().getRequest();
+    const response = context.switchToHttp().getResponse();
 
     if (request.url === '/metrics') {
       return next.handle();
@@ -27,6 +29,7 @@ export class StandardResponseInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       map((data) => {
+        response.status(HttpStatus.OK);
         const duration = Date.now() - request.startTime;
         const formattedResponse: StandardResponse = {
           resultCode: constants.RESULT_SUCCESS_CODE,

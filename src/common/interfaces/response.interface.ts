@@ -2,6 +2,7 @@ export interface StandardResponse {
     resultCode: string;
     resultDescription: string;
     developerMessage: string;
-    data: any;
+    data?: any;
+    errors?: any
   }
   

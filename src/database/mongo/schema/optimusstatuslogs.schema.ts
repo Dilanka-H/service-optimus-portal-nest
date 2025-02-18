@@ -1,6 +1,5 @@
-import { MongoConfiguration } from "src/config/mongo.config";
-import { applyEncryption } from "../encryption.helper";
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
+import { Document } from 'mongoose';
 
 export type OptimusStatusLogsDocument = OptimusStatusLogs & Document;
 
@@ -13,7 +12,7 @@ export class OptimusStatusLogs {
     status: string;
   
     @Prop({ type: Object })
-    data: Object
+    data: object
   
     @Prop({ type: Date, default: Date.now })
     TIMESTAMP: Date;

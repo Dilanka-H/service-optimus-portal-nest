@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { UpdateJobListDto } from './dto/update-job-list.dto';
-import { OptimusJobLists } from '../../database/mongo/schema/optimusjoblists.shema';
-import { OptimusJobListsService } from '../../database/mongo/services/optimusjoblists.service';
 import * as moment from "moment";
 import { SaleOrderJobListsService } from 'src/database/mongo/services/saleorderjoblists.service';
 import { SaleOrderJobLists } from 'src/database/mongo/schema/saleorderjoblists.schema';
@@ -16,7 +14,7 @@ export class SaleOrderService {
     ){}
 
     async updateJobList(updateJobListDto: UpdateJobListDto) {
-        let { condition, updateData } = updateJobListDto;
+        const { condition, updateData } = updateJobListDto;
         updateData["TIMESTAMP"] = moment().toISOString();
 
         const result = await this.saleOrderJobListsService.updateJobList(
@@ -28,7 +26,7 @@ export class SaleOrderService {
     }
 
     async updateOrderItem(updateSaleOrderItemDto: UpdateSaleOrderItemDto) {
-      let { condition, updateData } = updateSaleOrderItemDto;
+      const { condition, updateData } = updateSaleOrderItemDto;
       const result = await this.saleOrderItemsService.updateOrderItem(
           condition,
           updateData,
@@ -42,6 +40,6 @@ export class SaleOrderService {
     }
 
     async findAll(): Promise<SaleOrderJobLists[]> {
-      return this.saleOrderJobListsService.findAll();
+      return this.saleOrderJobListsService.findSaleOrderJobList({});
     }
 }

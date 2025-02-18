@@ -1,0 +1,92 @@
+export interface IQuerySticker {
+  transactionId: string;
+  username: string;
+  chargeType: string;
+  serialList: string[];
+}
+
+export interface IQueryStickerResponse {
+  resultCode: string;
+  resultDesc: string;
+  simSerialNoList?: SimSerialNoList[];
+}
+
+export interface SimSerialNoList {
+  batch?: string;
+  count?: string;
+  createdBy?: string;
+  createdDate?: string;
+  data2?: string;
+  eanCode?: string;
+  eanPackCode?: string;
+  expireDate?: string;
+  lastModifiedBy?: string;
+  lastModifiedTime?: string;
+  material?: string;
+  mobileNo?: string;
+  networkTypeMobile?: string;
+  pNFr1?: string;
+  pNFr2?: string;
+  pNFr3?: string;
+  pNQty1?: string;
+  pNQty2?: string;
+  pNQty3?: string;
+  pNTo1?: string;
+  pNTo2?: string;
+  pNTo3?: string;
+  physicalRegion?: string;
+  prepNo?: string;
+  productionControlNo?: string;
+  reprintCount?: string;
+  simSerialNo?: string;
+  stickerRegion?: string;
+  stickerType?: string;
+  thaiRegion?: string;
+  rowId?: string;
+  serialNo?: string;
+  packageId?: string;
+  simBatchNo?: string;
+  regionCode?: string;
+  networkType?: string;
+  reserveDate?: string;
+  reserveExpiryDate?: string;
+  cancelExpiryDate?: string;
+  statusCode?: string;
+  invoiceNo?: string;
+  invoiceDate?: string;
+  dealerCode?: string;
+  transferSapFlag?: string;
+  materialCode?: string;
+  activationCac?: string;
+  lastUpdate?: string;
+  lastUpdateBy?: string;
+  modificationNum?: string;
+  locationId?: string;
+  chanel?: string;
+  assignType?: string;
+  productType?: string;
+  statusDate?: string;
+  reasonCode?: string;
+  poolDate?: string;
+  poolExpiryDate?: string;
+  remark?: string;
+  chargeType?: string;
+  freePackageType?: string;
+  dummyMobileNo?: string;
+  dealerLocation?: string;
+  dealerDate?: string;
+  issueReasonCode?: string;
+  irOperatorCode?: string;
+  psswdMpage?: string;
+  lotNo?: string;
+  freePackageRemark?: string;
+  bosProductSeq?: string;
+  groupPrep?: string;
+  accountNo?: string;
+  billingAccountNo?: string;
+  cbsCustomerId?: string;
+  cbsAccountId?: string;
+  insOntopProductSeq?: string;
+  prepPromotionCode?: string;
+  prepPromotionName?: string;
+}

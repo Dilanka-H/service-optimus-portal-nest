@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Response } from '../interfaces';
-import { SaleOrderItems } from '../schema/SaleOrderItems.schema';
+import { SaleOrderItems, SaleOrderItemsDocument } from '../schema/SaleOrderItems.schema';
+import { MongoUpdateResponse } from 'src/common/interfaces/database_domain.interface';
 
 @Injectable()
 export class SaleOrderItemsService {
@@ -10,17 +10,17 @@ export class SaleOrderItemsService {
     @InjectModel(SaleOrderItems.name) private SaleOrderItemsModel: Model<SaleOrderItems>,
   ) {}
 
-  async updateOrderItem(condition: Object, updateData: Object): Promise<Response> {
-    const result: Response = {
+  async updateOrderItem(condition: object, updateData: object): Promise<MongoUpdateResponse> {
+    const result: MongoUpdateResponse = {
       acknowledged: true,
       upsertedId: null, 
       upsertedCount: 0, 
       matchedCount: 1, 
       modifiedCount: 1
     };
-    const jobList = await this.SaleOrderItemsModel.find(condition).exec();
+    const items: SaleOrderItemsDocument[] = await this.findSaleOrderItem(condition);
 
-    if (!jobList) {
+    if (!items) {
       result.acknowledged = true
       result.matchedCount = 0
       result.modifiedCount = 0
@@ -29,7 +29,7 @@ export class SaleOrderItemsService {
       return result
     }
 
-    const updatePromises = jobList.map(async (jobList) => {
+    const updatePromises = items.map(async (jobList) => {
       Object.assign(jobList, updateData);
       await jobList.save();
       return jobList;
@@ -43,8 +43,8 @@ export class SaleOrderItemsService {
     return result
   }
 
-  async findAll(): Promise<SaleOrderItems[]> {
-    return this.SaleOrderItemsModel.find().exec();
+  async findSaleOrderItem(condition): Promise<SaleOrderItemsDocument[]> {
+    return this.SaleOrderItemsModel.find(condition).exec();
   }
 
   async createJob(jobData) {

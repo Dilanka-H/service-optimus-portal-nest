@@ -1,6 +1,5 @@
-import { MongoConfiguration } from "src/config/mongo.config";
-import { applyEncryption } from "../encryption.helper";
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
+import { Document } from 'mongoose';
 
 export type PersoSimTransactionsDocument = PersoSimTransactions & Document;
 
@@ -40,7 +39,7 @@ export class PersoSimTransactions {
     simSerial: string;
   
     @Prop({ type: Object })
-    moreInfo: Object;
+    moreInfo: object;
   
     @Prop({ type: Date, default: Date.now })
     TIMESTAMP: Date;

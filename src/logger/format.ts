@@ -9,7 +9,7 @@ export class LoggerFormat {
         return `TIMESTAMP|${timestamp}|ID|${id}|IP|${ip}|REQUEST_ID|${requestId}|`;
     }
 
-    appLogFormat(applog: IInfoLog, options?: any): string | any {
+    appLogFormat(applog: IInfoLog): string | any {
         return {
             logger: applog.requestHeaders["x-request-type"],
             channel: applog.requestBody.channel,

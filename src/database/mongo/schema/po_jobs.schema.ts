@@ -1,5 +1,5 @@
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
-import mongoose from "mongoose";
+import { Document } from 'mongoose';
 
 export type PoJobsDocument = PoJobs & Document;
 
@@ -16,7 +16,7 @@ export const QuantityInfoSchema = SchemaFactory.createForClass(QuantityInfo);
 
 @Schema()
 export class InspectInfo {
-    @Prop({ type: String })
+    @Prop({ type: String, required: false })
     inspectStatus1: string;
   
     @Prop({ type: String })
@@ -33,6 +33,9 @@ export class InspectInfo {
   
     @Prop({ type: String })
     inspectUser2: string;
+
+    @Prop({ type: String })
+    inspect2IgnoreReason: string;
 }
   
 export const InspectInfoSchema = SchemaFactory.createForClass(InspectInfo);
@@ -102,6 +105,29 @@ export class OutputFile2Info {
     
 export const OutputFile2InfoSchema = SchemaFactory.createForClass(OutputFile2Info);
 
+@Schema()
+export class GIGRInfo {
+    @Prop({ type: String, default: '' })
+    GIDocNo: string;
+
+    @Prop({ type: String, default: '' })
+    GIDate: string;
+
+    @Prop({ type: String, default: '' })
+    GRDocNo: string;
+
+    @Prop({ type: String, default: '' })
+    GRDate: string;
+
+    @Prop({ type: String, default: '' })
+    GIGRDate: string;
+
+    @Prop({ type: String, default: '' })
+    GIGRUser: string;
+}
+    
+export const GIGRInfoSchema = SchemaFactory.createForClass(GIGRInfo);
+
 @Schema({collection: 'po_jobs'})
 export class PoJobs {
   @Prop({ type: String })
@@ -146,11 +172,35 @@ export class PoJobs {
   @Prop({ type: OutputFile2InfoSchema })
   outputFile2Info: OutputFile2Info
 
-  @Prop({ type: String, default: '' })
+  @Prop({ type: GIGRInfoSchema })
+  GIGRInfo: GIGRInfo
+
+  @Prop({ type: String })
   BPCustomer: string;
 
-  @Prop({ type: String, default: '' })
+  @Prop({ type: String })
   customerName: string;
+
+  @Prop({ type: String })
+  BOMCode: string;
+
+  @Prop({ type: String })
+  BOMDesc: string;
+
+  @Prop({ type: String })
+  prematchEndTime: string;
+
+  @Prop({ type: String })
+  prematchStartTime: string;
+
+  @Prop({ type: String })
+  EAN_UPC_CAR: string;
+
+  @Prop({ type: String })
+  EAN_UPC_PC: string;
+
+  @Prop({ type: Array })
+  mobileList: string[];
 
   @Prop({ type: Date, default: Date.now })
   lastUpdate: Date;
@@ -160,8 +210,6 @@ export class PoJobs {
 }
 
 export const PoJobsSchema = SchemaFactory.createForClass(PoJobs);
-
-export const PoJobsModel = mongoose.model('PoJobs', PoJobsSchema, 'po_jobs');
 
 PoJobsSchema.index({ PONumber: 1, POItem: 1, status: 1 })
 PoJobsSchema.index({ PONumber: 1 })

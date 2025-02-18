@@ -1,6 +1,7 @@
 import { MongoConfiguration } from "src/config/mongo.config";
 import { applyEncryption } from "../encryption.helper";
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
+import { Document } from 'mongoose';
 
 export type SaleOrderTransactionsDocument = SaleOrderTransactions & Document;
 
@@ -63,10 +64,10 @@ export class SaleOrderTransactions {
     addressInfo: AddressInfo;
 
     @Prop({ type: Array })
-    itemsList: Array<Object>;
+    itemsList: Array<object>;
 
     @Prop({ type: Object })
-    result: Object;
+    result: object;
 
     @Prop({ type: Date, default: Date.now })
     TIMESTAMP: Date;

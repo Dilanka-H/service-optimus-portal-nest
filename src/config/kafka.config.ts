@@ -1,21 +1,21 @@
 import { Configuration, Value } from "@itgorillaz/configify";
-import { path, serviceEnv } from "./common";
-import * as fs from 'fs';
+// import { path, serviceEnv } from "./common";
+// import * as fs from 'fs';
 
 @Configuration()
 export class KafkaConfiguration {
   @Value('KAFKA_SERVER_URI')
   kafkaServerUri: string;
-  @Value('KAFKA_SECURITY_PROTOCOL')
-  kafaSecurityProtocol: 'plaintext' | 'ssl' | 'sasl_plaintext' | 'sasl_ssl';
   @Value('KAFKA_MECHANISM')
-  kafkaMechanism: string;
+  kafkaMechanism: 'plain';
   @Value('KAFKA_USERNAME')
   kafkaUsername: string;
   @Value('KAFKA_PASSWORD')
   kafkaPassword: string;
   @Value('KAFKA_GROUP_ID')
   kafkaGroupId: string;
+  @Value('KAFKA_SSL')
+  kafkaSSL: boolean;
 
   constructor() {
     // console.log("dhwsidhsij", serviceEnv)

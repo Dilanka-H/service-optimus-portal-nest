@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { AuthInput, AuthResult, SignInData } from './interface';
-import { UserService } from 'src/domain/user/user.service';
 import { JwtService } from '@nestjs/jwt';
+import { UserService } from 'src/domain/user/user.service';
+import { AuthInput, AuthResult, SignInData } from './interface';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +31,7 @@ export class AuthService {
             const accessToken = await this.jwtService.signAsync(tokenPayload);
             return { accesToken: accessToken, username: user.username, userId: user.userId };
         } catch (error) {
-            throw new Error("Failed to generate JWT token.");
+            throw new Error(`Failed to generate JWT token: ${error}`);
         }
     }
 }

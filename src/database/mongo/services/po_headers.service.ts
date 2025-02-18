@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PoHeaders } from '../schema/po_headers.schema';
-import { IQueryPoListCondition } from 'src/common/interfaces/database_domain.interface';
+import { IPoHeaderCondition } from 'src/common/interfaces/database_domain.interface';
+import { IQueryPoListResponse } from '../interfaces';
 
 @Injectable()
 export class PoHeadersService {
@@ -10,7 +11,7 @@ export class PoHeadersService {
     @InjectModel(PoHeaders.name) private PoHeadersModel: Model<PoHeaders>,
   ) {}
 
-  async queryPoList(condition: IQueryPoListCondition): Promise<any> {
+  async queryPoList(condition: IPoHeaderCondition): Promise<IQueryPoListResponse[]> {
     return this.PoHeadersModel.aggregate([
             { $match: condition }, 
             {

@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, ValidateNested, IsEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class ConditionDto {

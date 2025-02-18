@@ -1,60 +1,69 @@
 import { MongoConfiguration } from "src/config/mongo.config";
 import { applyEncryption } from "../encryption.helper";
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
+import { Document } from 'mongoose';
 
 export type OptimusJobListsDocument = OptimusJobLists & Document;
 
 @Schema()
 export class ItemsList {
   @Prop({ type: String })
-  serialNo: string;
-
-  @Prop({ type: String })
-  imsi: string;
-
-  @Prop({ type: String })
-  nuNotifyFlag: string;
+  orderNo: string;
 
   @Prop({ type: String })
   orderStatus: string;
 
   @Prop({ type: String })
-  prepTransactionNo: string;
+  orderDateTime: string;
+
+  @Prop({ type: String })
+  newMobileNo: string;
+
+  @Prop({ type: String, required: false })
+  serialNo: string;
 }
+
+export const ItemsListSchema = SchemaFactory.createForClass(ItemsList);
 
 @Schema()
 export class OptimusJobLists {
-  @Prop({ required: true })
+  @Prop({})
   jobStatus: string;
 
-  @Prop({ required: true })
+  @Prop({})
   jobId: string;
 
-  @Prop({ required: true })
+  @Prop({})
   jobName: string;
 
-  @Prop({ required: true })
+  @Prop({})
+  orderType: string;
+
+  @Prop({})
+  jobZone: string;
+
+  @Prop({})
   orderDate: string;
 
-  @Prop({ required: true })
+  @Prop({})
   jobType: string;
 
-  @Prop({ required: true })
+  @Prop({})
   createBy: string;
 
-  @Prop({ required: true })
+  @Prop({})
   updateBy: string;
 
-  @Prop({ required: true, default: Date.now })
+  @Prop({ default: Date.now })
   TIMESTAMP: Date;
 
-  @Prop({ required: true })
+  @Prop({})
   forwarderName: string;
 
-  @Prop({ required: true })
+  @Prop({})
   jobDate: string;
 
-  @Prop({ required: true })
+  @Prop({})
   itemsSize: number;
 
   @Prop({ type: [ItemsList], default: [] })
@@ -65,4 +74,5 @@ export const OptimusJobListsSchema = SchemaFactory.createForClass(OptimusJobList
 
 export function encryptOptimusJobListsSchema(mongoConfig: MongoConfiguration) {
     applyEncryption(OptimusJobListsSchema, mongoConfig, ["jobStatus"]);
+    applyEncryption(ItemsListSchema, mongoConfig, ["newMobileNo"]);
 }

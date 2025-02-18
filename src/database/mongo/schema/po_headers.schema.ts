@@ -1,4 +1,5 @@
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
+import { Document } from 'mongoose';
 
 export type PoHeadersDocument = PoHeaders & Document;
 
@@ -15,16 +16,16 @@ export const LockInfoSchema = SchemaFactory.createForClass(LockInfo);
 
 @Schema({ collection: 'po_headers' })
 export class PoHeaders {
-    @Prop({ type: String })
+    @Prop({ type: String, required: true })
     PONumber: string;
   
-    @Prop({ type: String })
+    @Prop({ type: String, required: true })
     POItem: string;
   
-    @Prop({ type: Date })
+    @Prop({ type: Date, required: true })
     PODate: Date;
   
-    @Prop({ type: String })
+    @Prop({ type: String, required: true })
     PRNumber: string;
   
     @Prop({ type: Number })

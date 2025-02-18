@@ -1,6 +1,6 @@
 import { Configuration, Value } from "@itgorillaz/configify";
-import { path, serviceEnv } from "./common";
-import * as fs from 'fs';
+// import { path, serviceEnv } from "./common";
+// import * as fs from 'fs';
 
 @Configuration()
 export class AppConfiguration {

@@ -1,17 +1,17 @@
 import {
-    ExceptionFilter,
-    Catch,
-    ArgumentsHost,
-    HttpException,
-    Injectable,
-  } from '@nestjs/common';
-  import { Request, Response } from 'express';
-  import { LoggerService } from '../../logger/logger.service';
-    import { IInfoLog } from '../../logger/interface';
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  Injectable,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
+import { IInfoLog } from '../../logger/interface';
+import { LoggerService } from '../../logger/logger.service';
 import { normalizeHeader } from '../../logger/utils';
 import { StandardResponse } from '../interfaces/response.interface';
-import { populateMetricLabels } from '../utils';
 import { MetricsService } from '../metrics/metrics.service';
+import { populateMetricLabels } from '../utils';
   
   @Catch(HttpException)
   @Injectable()
@@ -54,7 +54,7 @@ import { MetricsService } from '../metrics/metrics.service';
         resultCode: status.toString(),
         resultDescription: errorMessage.message,
         developerMessage: message,
-        data: null,
+        errors: errorMessage.errors
       };
       
       logMessage.responseBody = formattedErrorResponse

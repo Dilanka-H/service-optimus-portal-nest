@@ -1,8 +1,9 @@
 import { MongoConfiguration } from "src/config/mongo.config";
 import { applyEncryption } from "../encryption.helper";
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
+import { Document } from 'mongoose';
 
-export type SaleOrderItemsDocument = SaleOrderItems & Document;
+export type SaleOrderItemsDocument = Document & SaleOrderItems;
 
 @Schema()
 export class DeviceInfo {

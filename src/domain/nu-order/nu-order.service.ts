@@ -13,6 +13,6 @@ export class NuOrderService {
     }
 
     async findAll(): Promise<SaleOrderJobLists[]> {
-        return this.saleorderjoblistsService.findAll();
+        return this.saleorderjoblistsService.findSaleOrderJobList({});
     }
 }

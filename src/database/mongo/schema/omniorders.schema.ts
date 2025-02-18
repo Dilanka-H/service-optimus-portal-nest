@@ -1,6 +1,5 @@
-import { MongoConfiguration } from "src/config/mongo.config";
-import { applyEncryption } from "../encryption.helper";
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
+import { Document } from 'mongoose';
 
 export type OmniOrdersDocument = OmniOrders & Document;
 
