@@ -5,7 +5,7 @@ import * as utc from 'dayjs/plugin/utc';
 import { TIMEZONE_THAI } from 'src/common/constants';
 import { IPoHeaderCondition, IPoJobCondition } from 'src/common/interfaces/database_domain.interface';
 import { IQueryPoJobListResponse } from 'src/database/mongo/interfaces';
-import { PoJobsService } from 'src/database/mongo/services/po_jobs.service';
+import { PoJobsRepository } from 'src/database/mongo/repositories/po_jobs.service';
 import { QueryPoJobListDto } from '../../dto/query-po-job-list.dto';
 import { QueryPoJobListService } from './query-po-job-list.service';
 
@@ -14,7 +14,7 @@ dayjs.extend(timezone);
 
 describe('QueryPoJobListService', () => {
   let service: QueryPoJobListService;
-  let poJobsService: PoJobsService;
+  let poJobsService: PoJobsRepository;
   const requestDto: QueryPoJobListDto = {
     PONumber: 'PO123456',
     jobId: 'JOB789',
@@ -82,11 +82,11 @@ describe('QueryPoJobListService', () => {
       queryPoJobList: jest.fn(),
     };
     const module: TestingModule = await Test.createTestingModule({
-      providers: [QueryPoJobListService, { provide: PoJobsService, useValue: mockPoJobsService }],
+      providers: [QueryPoJobListService, { provide: PoJobsRepository, useValue: mockPoJobsService }],
     }).compile();
 
     service = module.get<QueryPoJobListService>(QueryPoJobListService);
-    poJobsService = module.get<PoJobsService>(PoJobsService);
+    poJobsService = module.get<PoJobsRepository>(PoJobsRepository);
   });
 
   it('should be defined', () => {

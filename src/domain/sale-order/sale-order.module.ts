@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { SaleOrderService } from './sale-order.service';
-import { SaleOrderController } from './sale-order.controller';
 import { MongoModule } from 'src/database/mongo/mongo.module'; // Import MongoModule
-import { OptimusJobListsService } from 'src/database/mongo/services/optimusjoblists.service';
-import { SaleOrderJobListsService } from 'src/database/mongo/services/saleorderjoblists.service';
-import { SaleOrderItemsService } from 'src/database/mongo/services/saleorderitems.service';
+import { OptimusJobListsService } from 'src/database/mongo/repositories/optimusjoblists.service';
+import { SaleOrderItemsService } from 'src/database/mongo/repositories/saleorderitems.service';
+import { SaleOrderJobListsService } from 'src/database/mongo/repositories/saleorderjoblists.service';
+import { SaleOrderController } from './sale-order.controller';
+import { SaleOrderService } from './sale-order.service';
 
 @Module({
-  imports: [MongoModule], 
+  imports: [MongoModule],
   providers: [SaleOrderService, OptimusJobListsService, SaleOrderJobListsService, SaleOrderItemsService],
   controllers: [SaleOrderController],
 })

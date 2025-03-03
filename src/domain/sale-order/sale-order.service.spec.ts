@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SaleOrderService } from './sale-order.service'; 
-import { OptimusJobListsService } from '../../database/mongo/services/optimusjoblists.service';
+import { OptimusJobListsService } from '../../database/mongo/repositories/optimusjoblists.service';
 import { UpdateJobListDto } from './dto/update-job-list.dto';
+import { SaleOrderService } from './sale-order.service';
 
 describe('SaleOrderService', () => {
   let service: SaleOrderService;
@@ -15,27 +15,27 @@ describe('SaleOrderService', () => {
 
   const mockJobList = [
     {
-      "jobStatus" : "7071744e696c41516655506953746543:e2e326f6a2ecbad80b49ae06b36c3b2b",
-      "jobId" : "JOB001",
-      "jobName" : "Test Job",
-      "orderDate" : "2024-10-08",
-      "jobType" : "Standard",
-      "createBy" : "admin",
-      "updateBy" : "admin",
-      "TIMESTAMP" : new Date("2024-10-08T12:35:07.811+0000"),
-      "forwarderName" : "Forwarder A",
-      "jobDate" : "2024-10-09",
-      "itemsSize" : 1,
-      "itemsList" : [
-          {
-              "serialNo" : "12345",
-              "imsi" : "123456789012345",
-              "nuNotifyFlag" : "Y",
-              "orderStatus" : "Pending",
-              "prepTransactionNo" : "TX123",
-          }
+      jobStatus: '7071744e696c41516655506953746543:e2e326f6a2ecbad80b49ae06b36c3b2b',
+      jobId: 'JOB001',
+      jobName: 'Test Job',
+      orderDate: '2024-10-08',
+      jobType: 'Standard',
+      createBy: 'admin',
+      updateBy: 'admin',
+      TIMESTAMP: new Date('2024-10-08T12:35:07.811+0000'),
+      forwarderName: 'Forwarder A',
+      jobDate: '2024-10-09',
+      itemsSize: 1,
+      itemsList: [
+        {
+          serialNo: '12345',
+          imsi: '123456789012345',
+          nuNotifyFlag: 'Y',
+          orderStatus: 'Pending',
+          prepTransactionNo: 'TX123',
+        },
       ],
-    }
+    },
   ];
 
   beforeEach(async () => {
@@ -44,7 +44,7 @@ describe('SaleOrderService', () => {
         SaleOrderService,
         {
           provide: OptimusJobListsService,
-          useValue: mockOptimusJobListsService,  
+          useValue: mockOptimusJobListsService,
         },
       ],
     }).compile();
@@ -54,7 +54,7 @@ describe('SaleOrderService', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();  
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {

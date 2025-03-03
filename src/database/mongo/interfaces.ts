@@ -1,7 +1,7 @@
 import { GIGRInfo, InspectInfo, OutputFile1Info, OutputFile2Info, QuantityInfo } from "./schema/po_jobs.schema";
 
 // queryPOList API
-export interface IQueryPoListResponse {
+export interface QueryPoListResponse {
     SIMGroup?: string; 
     PODate?: Date; 
     PONumber?: string; 
@@ -26,7 +26,7 @@ export interface IQueryPoListResponse {
 }
 
 // queryPOJobListAPI
-export interface IQueryPoJobListResponse {
+export interface QueryPoJobListResponse {
     PONumber: string;
     PODate?: Date;
     POStatus?: string;

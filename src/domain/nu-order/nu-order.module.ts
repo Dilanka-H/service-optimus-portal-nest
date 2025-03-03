@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { NuOrderService } from './nu-order.service';
-import { NuOrderController } from './nu-order.controller';
 import { MongoModule } from 'src/database/mongo/mongo.module';
-import { SaleOrderJobListsService } from 'src/database/mongo/services/saleorderjoblists.service';
+import { SaleOrderJobListsService } from 'src/database/mongo/repositories/saleorderjoblists.service';
+import { NuOrderController } from './nu-order.controller';
+import { NuOrderService } from './nu-order.service';
 
 @Module({
   imports: [MongoModule],
   providers: [NuOrderService, SaleOrderJobListsService],
-  controllers: [NuOrderController]
+  controllers: [NuOrderController],
 })
 export class NuOrderModule {}

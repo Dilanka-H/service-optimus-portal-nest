@@ -5,7 +5,7 @@ import * as utc from 'dayjs/plugin/utc';
 import { TIMEZONE_THAI } from 'src/common/constants';
 import { IPoHeaderCondition } from 'src/common/interfaces/database_domain.interface';
 import { IQueryPoListResponse } from 'src/database/mongo/interfaces';
-import { PoHeadersService } from 'src/database/mongo/services/po_headers.service';
+import { PoHeadersService } from 'src/database/mongo/repositories/po_headers.service';
 import { QueryPoListDto } from '../../dto/query-po-list.dto';
 import { QueryPoListService } from './query-po-list.service';
 

@@ -23,6 +23,7 @@ import { UserModule } from './domain/user/user.module';
 import { LoggerModule } from './logger/logger.module';
 import { MiddlewareModule } from './middleware/middleware.module';
 import { WebsocketModule } from './websocket/websocket.module';
+import { UserService } from './src/database/mongo/repositories/user/user.service';
 
 @Module({
   imports: [ ConfigModule.forRoot({
@@ -51,7 +52,7 @@ import { WebsocketModule } from './websocket/websocket.module';
     provide: APP_PIPE,
     useClass: DtoValidationPipe,
   },
-  AppService, AppConfiguration, SeedService],
+  AppService, AppConfiguration, SeedService, UserService],
   exports: [AppConfiguration]
 })
 export class AppModule {}

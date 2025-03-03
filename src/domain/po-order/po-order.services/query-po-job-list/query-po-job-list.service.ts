@@ -4,7 +4,7 @@ import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
 import { TIMEZONE_THAI } from 'src/common/constants';
 import { IPoHeaderCondition, IPoJobCondition } from 'src/common/interfaces/database_domain.interface';
-import { PoJobsService } from 'src/database/mongo/services/po_jobs.service';
+import { PoJobsRepository } from 'src/database/mongo/repositories/po_jobs.service';
 import { QueryPoJobListDto } from 'src/domain/po-order/dto/query-po-job-list.dto';
 
 dayjs.extend(utc);
@@ -12,7 +12,7 @@ dayjs.extend(timezone);
 
 @Injectable()
 export class QueryPoJobListService {
-  constructor(private poJobsService: PoJobsService) {}
+  constructor(private poJobsService: PoJobsRepository) {}
 
   async queryPoJobList(queryPoJobListDto: QueryPoJobListDto) {
     const conditionPoJob: IPoJobCondition = {};

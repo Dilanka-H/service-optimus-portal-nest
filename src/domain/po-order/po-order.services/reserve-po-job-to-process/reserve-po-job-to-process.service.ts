@@ -19,9 +19,9 @@ import {
   IPoJobSetParams,
 } from 'src/common/interfaces/database_domain.interface';
 import { MongoService } from 'src/database/mongo/mongo.service';
+import { PoJobsRepository } from 'src/database/mongo/repositories/po_jobs.service';
 import { PoHeaders, PoHeadersDocument } from 'src/database/mongo/schema/po_headers.schema';
 import { PoJobs, PoJobsDocument } from 'src/database/mongo/schema/po_jobs.schema';
-import { PoJobsService } from 'src/database/mongo/services/po_jobs.service';
 import { ReservePoJobToProcessDto } from 'src/domain/po-order/dto/reserve-po-job-to-process.dto';
 import { IReservePoJobToProcessResponse } from 'src/domain/po-order/po-order.services/reserve-po-job-to-process/interfaces';
 
@@ -33,7 +33,7 @@ export class ReservePoJobToProcessService {
   constructor(
     @InjectModel(PoJobs.name) private PoJobsModel: Model<PoJobsDocument>,
     @InjectModel(PoHeaders.name) private PoHeadersModel: Model<PoHeadersDocument>,
-    private poJobsService: PoJobsService,
+    private poJobsService: PoJobsRepository,
     private mongoService: MongoService,
   ) {}
 

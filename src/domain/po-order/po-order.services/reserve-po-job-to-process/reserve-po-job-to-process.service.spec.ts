@@ -12,9 +12,9 @@ import {
 } from 'src/common/constants';
 import { IPoJobCondition } from 'src/common/interfaces/database_domain.interface';
 import { MongoService } from 'src/database/mongo/mongo.service';
+import { PoJobsRepository } from 'src/database/mongo/repositories/po_jobs.service';
 import { PoHeaders, PoHeadersDocument } from 'src/database/mongo/schema/po_headers.schema';
 import { PoJobs, PoJobsDocument } from 'src/database/mongo/schema/po_jobs.schema';
-import { PoJobsService } from 'src/database/mongo/services/po_jobs.service';
 import { ReservePoJobToProcessDto } from '../../dto/reserve-po-job-to-process.dto';
 import { ReservePoJobToProcessService } from './reserve-po-job-to-process.service';
 
@@ -23,7 +23,7 @@ dayjs.extend(timezone);
 
 describe('ReservePoJobToProcessService', () => {
   let service: ReservePoJobToProcessService;
-  let poJobsService: PoJobsService;
+  let poJobsService: PoJobsRepository;
   let mongoService: MongoService;
   let mockPoJobsModel: Model<PoJobsDocument>;
   let mockPoHeadersModel: Model<PoHeadersDocument>;
@@ -39,7 +39,7 @@ describe('ReservePoJobToProcessService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReservePoJobToProcessService,
-        { provide: PoJobsService, useValue: mockPoJobsService },
+        { provide: PoJobsRepository, useValue: mockPoJobsService },
         { provide: MongoService, useValue: mockMongoService },
         { provide: getModelToken(PoJobs.name), useValue: mockPoJobsModel },
         { provide: getModelToken(PoHeaders.name), useValue: mockPoHeadersModel },
@@ -47,7 +47,7 @@ describe('ReservePoJobToProcessService', () => {
     }).compile();
 
     service = module.get(ReservePoJobToProcessService);
-    poJobsService = module.get(PoJobsService);
+    poJobsService = module.get(PoJobsRepository);
     mongoService = module.get(MongoService);
   });
 
