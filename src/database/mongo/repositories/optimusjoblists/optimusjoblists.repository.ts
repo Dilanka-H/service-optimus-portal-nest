@@ -6,7 +6,7 @@ import { generateTransactionId } from 'src/common/utils';
 import { OptimusJobLists, OptimusJobListsDocument } from '../../schema/optimusjoblists.shema';
 
 @Injectable()
-export class OptimusjoblistsRepository {
+export class OptimusJobListsRepository {
   constructor(@InjectModel(OptimusJobLists.name) private OptimusJobListModel: Model<OptimusJobLists>) {}
 
   async createOptimusJobList(data: Partial<OptimusJobLists>): Promise<OptimusJobListsDocument> {

@@ -20,39 +20,55 @@ import { NuOrderModule } from './domain/nu-order/nu-order.module';
 import { PoOrderModule } from './domain/po-order/po-order.module';
 import { SaleOrderModule } from './domain/sale-order/sale-order.module';
 import { UserModule } from './domain/user/user.module';
+import { UserService } from './domain/user/user.service';
 import { LoggerModule } from './logger/logger.module';
 import { MiddlewareModule } from './middleware/middleware.module';
 import { WebsocketModule } from './websocket/websocket.module';
-import { UserService } from './src/database/mongo/repositories/user/user.service';
 
 @Module({
-  imports: [ ConfigModule.forRoot({
-    envFilePath: [
-      `.env.${process.env.NODE_ENV || 'dev'}`,  
-    ],
-    load: [loggerConfig],
-    isGlobal: true, 
-  }), 
-  LoggerModule, MiddlewareModule, UserModule, SaleOrderModule, MachineNoModule, NuOrderModule, PoOrderModule, MongoModule, AuthModule, MetricsModule, KafkaApiModule, ConfigifyModule.forRootAsync({configFilePath: `.env.${process.env.NODE_ENV}`}), WebsocketModule],
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: [`.env.${process.env.NODE_ENV || 'dev'}`],
+      load: [loggerConfig],
+      isGlobal: true,
+    }),
+    LoggerModule,
+    MiddlewareModule,
+    UserModule,
+    SaleOrderModule,
+    MachineNoModule,
+    NuOrderModule,
+    PoOrderModule,
+    MongoModule,
+    AuthModule,
+    MetricsModule,
+    KafkaApiModule,
+    ConfigifyModule.forRootAsync({ configFilePath: `.env.${process.env.NODE_ENV}` }),
+    WebsocketModule,
+  ],
   controllers: [AppController],
   providers: [
-  {
-    provide: APP_INTERCEPTOR,
-    useClass: StandardResponseInterceptor,
-  },
-  {
-    provide: APP_INTERCEPTOR,
-    useClass: LoggingInterceptor,
-  },
-  {
-    provide: APP_FILTER,
-    useClass: HttpExceptionFilter,
-  },
-  {
-    provide: APP_PIPE,
-    useClass: DtoValidationPipe,
-  },
-  AppService, AppConfiguration, SeedService, UserService],
-  exports: [AppConfiguration]
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: StandardResponseInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+    {
+      provide: APP_PIPE,
+      useClass: DtoValidationPipe,
+    },
+    AppService,
+    AppConfiguration,
+    SeedService,
+    UserService,
+  ],
+  exports: [AppConfiguration],
 })
 export class AppModule {}

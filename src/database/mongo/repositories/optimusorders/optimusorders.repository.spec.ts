@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { OptimusordersRepository } from './optimusorders.repository';
+import { OptimusOrdersRepository } from './optimusorders.repository';
 
-describe('OptimusordersRepository', () => {
-  let service: OptimusordersRepository;
+describe('OptimusOrdersRepository', () => {
+  let service: OptimusOrdersRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [OptimusordersRepository],
+      providers: [OptimusOrdersRepository],
     }).compile();
 
-    service = module.get<OptimusordersRepository>(OptimusordersRepository);
+    service = module.get<OptimusOrdersRepository>(OptimusOrdersRepository);
   });
 
   it('should be defined', () => {

@@ -12,12 +12,24 @@ export class ReservePoJobToProcessDto {
   reserveFlag: boolean;
 
   @IsString()
-  @IsNotEmpty()
-  action: string;
+  @IsOptional()
+  POStatus?: string;
 
   @IsString()
   @IsOptional()
-  SIMGroup?: string;
+  jobStatus?: string;
+
+  @IsString()
+  @IsOptional()
+  inspectStatus1?: string;
+
+  @IsString()
+  @IsOptional()
+  inspectStatus2?: string;
+
+  @IsString()
+  @IsOptional()
+  inspect2IgnoreReason?: string;
 
   // @IsString()
   tokenUser?: string;

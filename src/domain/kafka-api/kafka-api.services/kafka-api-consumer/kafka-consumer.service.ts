@@ -6,19 +6,25 @@ import { XMLParser } from 'fast-xml-parser';
 import { Model } from 'mongoose';
 import { STATUS_INIT, STATUS_QUEUE, TIMEZONE_THAI } from 'src/common/constants';
 import {
-  IMasterCustomerCondition,
-  IMasterCustomerSetParams,
-  IOptimusJobListCondition,
-  IOptimusJobListSetParams,
   IOptimusOmniOrderCondition,
   IOptimusOmniOrderSetParams,
-  IOptimusOrderCondition,
-  IOptimusOrderSetParams,
 } from 'src/common/interfaces/database_domain.interface';
 import { getFormattedDateYYYYMMDD, mapValues } from 'src/common/utils';
 import { KafkaConfiguration } from 'src/config/kafka.config';
 import { MongoService } from 'src/database/mongo/mongo.service';
-import { OptimusJobListsService } from 'src/database/mongo/repositories/optimusjoblists.service';
+import {
+  MasterCustomerCondition,
+  MasterCustomerSetParams,
+} from 'src/database/mongo/repositories/mastercustomers/mastercustomers.interface';
+import {
+  OptimusJobListCondition,
+  OptimusJobListSetParams,
+} from 'src/database/mongo/repositories/optimusjoblists/optimusjoblists.interface';
+import { OptimusJobListsRepository } from 'src/database/mongo/repositories/optimusjoblists/optimusjoblists.repository';
+import {
+  OptimusOrderCondition,
+  OptimusOrderSetParams,
+} from 'src/database/mongo/repositories/optimusorders/optimusorders.interface';
 import { MasterCustomers, MasterCustomersDocument } from 'src/database/mongo/schema/master_customers.schema';
 import { ItemsList, OptimusJobLists, OptimusJobListsDocument } from 'src/database/mongo/schema/optimusjoblists.shema';
 import { OptimusOmniOrders, OptimusOmniOrdersDocument } from 'src/database/mongo/schema/optimusomniorders.schema';
@@ -53,13 +59,13 @@ export class KafkaApiConsumerService {
     private kafkaService: KafkaConsumerService,
     private kafkaConfig: KafkaConfiguration,
     private mongoService: MongoService,
-    private optimusJobListsService: OptimusJobListsService,
+    private optimusJobListsRepository: OptimusJobListsRepository,
   ) {}
   async kafkaConsumer(kafkaConsumerDto: KafkaConsumerDto): Promise<IKafkaConsumerResponse> {
     const response = new IKafkaConsumerResponse();
-    const conditionOptimusOrder: IOptimusOrderCondition = {};
+    const conditionOptimusOrder: OptimusOrderCondition = {};
     const conditionOptimusOmniOrder: IOptimusOmniOrderCondition = {};
-    const setParamsOptimusOrder: IOptimusOrderSetParams = {};
+    const setParamsOptimusOrder: OptimusOrderSetParams = {};
     const setParamsOptimusOmniOrder: IOptimusOmniOrderSetParams = {};
     if (kafkaConsumerDto.start) {
       response.result = await this.kafkaService.createConsumer(this.kafkaConfig, topics, async (message) => {
@@ -98,8 +104,8 @@ export class KafkaApiConsumerService {
           }
         } else if (message.topic === 'sap.BusinessPartner.Replicate.Out') {
           const result = this.xmlParser.parse(message.value.toString());
-          const setParamsMasterCustomer: IMasterCustomerSetParams = {};
-          const consditionMasterCustomer: IMasterCustomerCondition = {};
+          const setParamsMasterCustomer: MasterCustomerSetParams = {};
+          const consditionMasterCustomer: MasterCustomerCondition = {};
           let businessPartnerSRRM = [];
           if (
             Array.isArray(
@@ -146,9 +152,9 @@ export class KafkaApiConsumerService {
     return response;
   }
 
-  private async optimusOrdersFlow(conditionOptimusOrder: IOptimusOrderCondition) {
+  private async optimusOrdersFlow(conditionOptimusOrder: OptimusOrderCondition) {
     const optimusOrder = await this.mongoService.findDocuments(this.OptimusOrdersModel, conditionOptimusOrder);
-    const conditionOptimusJobList: IOptimusJobListCondition = {
+    const conditionOptimusJobList: OptimusJobListCondition = {
       jobDate: getFormattedDateYYYYMMDD(),
       jobStatus: 'init',
       jobType: optimusOrder[0].orderType,
@@ -156,8 +162,8 @@ export class KafkaApiConsumerService {
       itemsSize: { $lt: 20 },
     };
     const optimusJob = await this.mongoService.findDocuments(this.OptimusJobListsModel, conditionOptimusJobList);
-    const setParamsOptimusJobList: IOptimusJobListSetParams = {};
-    const setParamsOptimusOrder: IOptimusOrderSetParams = {};
+    const setParamsOptimusJobList: OptimusJobListSetParams = {};
+    const setParamsOptimusOrder: OptimusOrderSetParams = {};
     const itemsList: ItemsList = {
       orderNo: optimusOrder[0].orderNo,
       orderStatus: STATUS_QUEUE,
@@ -168,7 +174,7 @@ export class KafkaApiConsumerService {
     if (optimusJob && optimusJob.length > 0) {
       setParamsOptimusJobList.itemsList = optimusJob[0].itemsList;
       setParamsOptimusJobList.itemsList.push(itemsList);
-      const conditionOptimusJobList: IOptimusJobListCondition = { jobId: optimusJob[0].jobId };
+      const conditionOptimusJobList: OptimusJobListCondition = { jobId: optimusJob[0].jobId };
       await this.mongoService.updateEncryptedDocuments(
         this.OptimusJobListsModel,
         conditionOptimusJobList,
@@ -184,7 +190,7 @@ export class KafkaApiConsumerService {
         setParamsOptimusOrder,
       );
     } else {
-      const newJob = await this.optimusJobListsService.createOptimusJobList({
+      const newJob = await this.optimusJobListsRepository.createOptimusJobList({
         orderDate: getFormattedDateYYYYMMDD(),
         orderType: optimusOrder[0].orderType,
         jobZone: optimusOrder[0].deliveryProvince,

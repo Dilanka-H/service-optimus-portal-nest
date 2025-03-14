@@ -1,6 +1,6 @@
 import { ItemsList } from '../../schema/optimusjoblists.shema';
 
-export interface IOptimusJobListCondition {
+export interface OptimusJobListCondition {
   jobId?: string;
   jobDate?: string;
   jobStatus?: string;
@@ -9,6 +9,6 @@ export interface IOptimusJobListCondition {
   itemsSize?: { $lt?: number };
 }
 
-export interface IOptimusJobListSetParams {
+export interface OptimusJobListSetParams {
   itemsList?: ItemsList[];
 }

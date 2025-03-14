@@ -1,55 +1,55 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsObject, IsOptional, IsString, Matches, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsObject, IsOptional, IsString, Matches, ValidateNested } from 'class-validator';
 import { RequireBothFields } from 'src/common/decorators/validation.decorator';
 
 export class Inspect1Dto {
-    @IsString()
-    @IsOptional()
-    @Matches(/^\d{4}-\d{2}-\d{2}$/, {message: `Inspect1startDate must be in the format "YYYY-MM-DD"`})
-    @RequireBothFields("Inspect1endDate")
-    Inspect1startDate: string;
+  @IsString()
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: `Inspect1startDate must be in the format "YYYY-MM-DD"` })
+  @RequireBothFields('Inspect1endDate')
+  Inspect1startDate: string;
 
-    @IsString()
-    @IsOptional()
-    @Matches(/^\d{4}-\d{2}-\d{2}$/, {message: `Inspect1endDate must be in the format "YYYY-MM-DD"`})
-    @RequireBothFields("Inspect1startDate")
-    Inspect1endDate: string;
+  @IsString()
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: `Inspect1endDate must be in the format "YYYY-MM-DD"` })
+  @RequireBothFields('Inspect1startDate')
+  Inspect1endDate: string;
 
-    @IsString()
-    @IsOptional()
-    Inspect1status: string;
+  @IsString()
+  @IsOptional()
+  Inspect1status: string;
 }
 
 export class Inspect2Dto {
-    @IsString()
-    @IsOptional()
-    @Matches(/^\d{4}-\d{2}-\d{2}$/, {message: `Inspect2startDate must be in the format "YYYY-MM-DD"`})
-    @RequireBothFields("Inspect2endDate")
-    Inspect2startDate: string;
+  @IsString()
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: `Inspect2startDate must be in the format "YYYY-MM-DD"` })
+  @RequireBothFields('Inspect2endDate')
+  Inspect2startDate: string;
 
-    @IsString()
-    @IsOptional()
-    @Matches(/^\d{4}-\d{2}-\d{2}$/, {message: `Inspect2endDate must be in the format "YYYY-MM-DD"`})
-    @RequireBothFields("Inspect2startDate")
-    Inspect2endDate: string;
+  @IsString()
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: `Inspect2endDate must be in the format "YYYY-MM-DD"` })
+  @RequireBothFields('Inspect2startDate')
+  Inspect2endDate: string;
 
-    @IsString()
-    @IsOptional()
-    Inspect2status: string;
+  @IsString()
+  @IsOptional()
+  Inspect2status: string;
 }
 
 export class GIGRDto {
-    @IsString()
-    @IsOptional()
-    @Matches(/^\d{4}-\d{2}-\d{2}$/, {message: `GIGRstartDate must be in the format "YYYY-MM-DD"`})
-    @RequireBothFields("GIGRendDate")
-    GIGRstartDate: string;
+  @IsString()
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: `GIGRstartDate must be in the format "YYYY-MM-DD"` })
+  @RequireBothFields('GIGRendDate')
+  GIGRstartDate: string;
 
-    @IsString()
-    @IsOptional()
-    @Matches(/^\d{4}-\d{2}-\d{2}$/, {message: `GIGRendDate must be in the format "YYYY-MM-DD"`})
-    @RequireBothFields("GIGRstartDate")
-    GIGRendDate: string;
+  @IsString()
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: `GIGRendDate must be in the format "YYYY-MM-DD"` })
+  @RequireBothFields('GIGRstartDate')
+  GIGRendDate: string;
 }
 
 export class QueryPoJobListDto {
@@ -71,14 +71,14 @@ export class QueryPoJobListDto {
 
   @IsString()
   @IsOptional()
-  @Matches(/^\d{4}-\d{2}-\d{2}$/, {message: `POstartDate must be in the format "YYYY-MM-DD"`})
-  @RequireBothFields("POendDate")
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: `POstartDate must be in the format "YYYY-MM-DD"` })
+  @RequireBothFields('POendDate')
   POstartDate: string;
 
   @IsString()
   @IsOptional()
-  @Matches(/^\d{4}-\d{2}-\d{2}$/, {message: `POendDate must be in the format "YYYY-MM-DD"`})
-  @RequireBothFields("POstartDate")
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: `POendDate must be in the format "YYYY-MM-DD"` })
+  @RequireBothFields('POstartDate')
   POendDate: string;
 
   @IsString()
@@ -122,4 +122,12 @@ export class QueryPoJobListDto {
   @IsString()
   @IsOptional()
   description: string;
+
+  @IsBoolean()
+  @IsOptional()
+  flagPrintPO: boolean = false;
+
+  @IsString()
+  @IsOptional()
+  searchIns: string = '';
 }

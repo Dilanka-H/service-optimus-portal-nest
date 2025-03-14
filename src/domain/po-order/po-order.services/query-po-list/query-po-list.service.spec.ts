@@ -3,9 +3,11 @@ import * as dayjs from 'dayjs';
 import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
 import { TIMEZONE_THAI } from 'src/common/constants';
-import { IPoHeaderCondition } from 'src/common/interfaces/database_domain.interface';
-import { IQueryPoListResponse } from 'src/database/mongo/interfaces';
-import { PoHeadersService } from 'src/database/mongo/repositories/po_headers.service';
+import {
+  PoHeaderCondition,
+  QueryPoListResponse,
+} from 'src/database/mongo/repositories/po_headers/po_headers.interface';
+import { PoHeadersRepository } from 'src/database/mongo/repositories/po_headers/po_headers.respository';
 import { QueryPoListDto } from '../../dto/query-po-list.dto';
 import { QueryPoListService } from './query-po-list.service';
 
@@ -14,7 +16,7 @@ dayjs.extend(timezone);
 
 describe('QueryPoListService', () => {
   let service: QueryPoListService;
-  let poHeadersService: PoHeadersService;
+  let poHeadersRepository: PoHeadersRepository;
 
   const requestDto: QueryPoListDto = {
     PONumber: 'PO123456',
@@ -28,7 +30,7 @@ describe('QueryPoListService', () => {
     Description: 'Sample description of the PO',
   };
 
-  const condition: IPoHeaderCondition = {
+  const condition: PoHeaderCondition = {
     PONumber: requestDto.PONumber,
     PRNumber: requestDto.PRNumber,
     SIMGroup: { $in: requestDto.SIMGroup },
@@ -46,11 +48,11 @@ describe('QueryPoListService', () => {
       queryPoList: jest.fn(),
     };
     const module: TestingModule = await Test.createTestingModule({
-      providers: [QueryPoListService, { provide: PoHeadersService, useValue: mockPoHeadersService }],
+      providers: [QueryPoListService, { provide: PoHeadersRepository, useValue: mockPoHeadersService }],
     }).compile();
 
     service = module.get<QueryPoListService>(QueryPoListService);
-    poHeadersService = module.get<PoHeadersService>(PoHeadersService);
+    poHeadersRepository = module.get<PoHeadersRepository>(PoHeadersRepository);
   });
 
   it('should be defined', () => {
@@ -58,22 +60,22 @@ describe('QueryPoListService', () => {
   });
 
   it('should return documents if request is sent with POStatus', async () => {
-    const mockResult: IQueryPoListResponse[] = [];
-    poHeadersService.queryPoList = jest.fn().mockResolvedValue(mockResult);
+    const mockResult: QueryPoListResponse[] = [];
+    poHeadersRepository.queryPoList = jest.fn().mockResolvedValue(mockResult);
 
     const result = await service.queryPoList(requestDto);
-    expect(poHeadersService.queryPoList).toHaveBeenCalledWith(condition);
+    expect(poHeadersRepository.queryPoList).toHaveBeenCalledWith(condition);
     expect(result).toEqual(mockResult);
   });
 
   it('should return documents if request is sent without POStatus', async () => {
-    const mockResult: IQueryPoListResponse[] = [];
+    const mockResult: QueryPoListResponse[] = [];
     delete requestDto.POStatus;
     condition.status = { $nin: requestDto.excludeStatus };
-    poHeadersService.queryPoList = jest.fn().mockResolvedValue(mockResult);
+    poHeadersRepository.queryPoList = jest.fn().mockResolvedValue(mockResult);
 
     const result = await service.queryPoList(requestDto);
-    expect(poHeadersService.queryPoList).toHaveBeenCalledWith(condition);
+    expect(poHeadersRepository.queryPoList).toHaveBeenCalledWith(condition);
     expect(result).toEqual(mockResult);
   });
 });

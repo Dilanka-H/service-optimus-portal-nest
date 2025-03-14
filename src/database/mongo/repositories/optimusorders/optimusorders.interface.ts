@@ -1,9 +1,9 @@
-export interface IOptimusOrderCondition {
+export interface OptimusOrderCondition {
   orderNo?: string;
   orderStatus?: string;
 }
 
-export interface IOptimusOrderSetParams {
+export interface OptimusOrderSetParams {
   trackingNo?: string;
   forwarderName?: string;
   jobListId?: string;

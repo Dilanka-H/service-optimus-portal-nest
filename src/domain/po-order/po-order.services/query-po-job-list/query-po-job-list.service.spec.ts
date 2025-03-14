@@ -3,9 +3,9 @@ import * as dayjs from 'dayjs';
 import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
 import { TIMEZONE_THAI } from 'src/common/constants';
-import { IPoHeaderCondition, IPoJobCondition } from 'src/common/interfaces/database_domain.interface';
-import { IQueryPoJobListResponse } from 'src/database/mongo/interfaces';
-import { PoJobsRepository } from 'src/database/mongo/repositories/po_jobs.service';
+import { PoHeaderCondition } from 'src/database/mongo/repositories/po_headers/po_headers.interface';
+import { PoJobCondition, QueryPoJobListResponse } from 'src/database/mongo/repositories/po_jobs/po_jobs.interface';
+import { PoJobsRepository } from 'src/database/mongo/repositories/po_jobs/po_jobs.respository';
 import { QueryPoJobListDto } from '../../dto/query-po-job-list.dto';
 import { QueryPoJobListService } from './query-po-job-list.service';
 
@@ -14,7 +14,7 @@ dayjs.extend(timezone);
 
 describe('QueryPoJobListService', () => {
   let service: QueryPoJobListService;
-  let poJobsService: PoJobsRepository;
+  let poJobsRepository: PoJobsRepository;
   const requestDto: QueryPoJobListDto = {
     PONumber: 'PO123456',
     jobId: 'JOB789',
@@ -42,13 +42,14 @@ describe('QueryPoJobListService', () => {
     SIMGroup: ['SIM123', 'SIM456'],
     material: 'MaterialX',
     description: 'Sample description of the job',
+    flagPrintPO: false,
+    searchIns: '',
   };
 
-  const conditionPoJob: IPoJobCondition = {
+  const conditionPoJob: PoJobCondition = {
     PONumber: requestDto.PONumber,
     jobId: requestDto.jobId,
     jobStatus: { $in: requestDto.jobStatus },
-    SalesOrder: requestDto.SalesOrder,
     'inspectInfo.inspectStatus1': requestDto.Inspect1.Inspect1status,
     'inspectInfo.inspectDate1': {
       $gte: dayjs.tz(requestDto.Inspect1.Inspect1startDate, TIMEZONE_THAI).startOf('day').utc().toISOString(),
@@ -65,11 +66,12 @@ describe('QueryPoJobListService', () => {
     },
   };
 
-  const conditionPoHeader: IPoHeaderCondition = {
+  const conditionPoHeader: PoHeaderCondition = {
     PRNumber: requestDto.PRNumber,
     status: requestDto.POStatus,
     Description: requestDto.description,
     Material: requestDto.material,
+    SalesOrder: requestDto.SalesOrder,
     PODate: {
       $gte: dayjs.tz(requestDto.POstartDate, TIMEZONE_THAI).startOf('day').utc().toDate(),
       $lte: dayjs.tz(requestDto.POendDate, TIMEZONE_THAI).endOf('day').utc().toDate(),
@@ -86,7 +88,7 @@ describe('QueryPoJobListService', () => {
     }).compile();
 
     service = module.get<QueryPoJobListService>(QueryPoJobListService);
-    poJobsService = module.get<PoJobsRepository>(PoJobsRepository);
+    poJobsRepository = module.get<PoJobsRepository>(PoJobsRepository);
   });
 
   it('should be defined', () => {
@@ -94,22 +96,22 @@ describe('QueryPoJobListService', () => {
   });
 
   it('should return documents if request is sent with jobStatus', async () => {
-    const mockResult: IQueryPoJobListResponse[] = [];
-    poJobsService.queryPoJobList = jest.fn().mockResolvedValue(mockResult);
+    const mockResult: QueryPoJobListResponse[] = [];
+    poJobsRepository.queryPoJobList = jest.fn().mockResolvedValue(mockResult);
 
     const result = await service.queryPoJobList(requestDto);
-    expect(poJobsService.queryPoJobList).toHaveBeenCalledWith(conditionPoJob, conditionPoHeader);
+    expect(poJobsRepository.queryPoJobList).toHaveBeenCalledWith(conditionPoJob, conditionPoHeader);
     expect(result).toEqual(mockResult);
   });
 
   it('should return documents if request is sent without jobStatus', async () => {
-    const mockResult: IQueryPoJobListResponse[] = [];
+    const mockResult: QueryPoJobListResponse[] = [];
     delete requestDto.jobStatus;
     conditionPoJob.jobStatus = { $nin: requestDto.excludeStatus };
-    poJobsService.queryPoJobList = jest.fn().mockResolvedValue(mockResult);
+    poJobsRepository.queryPoJobList = jest.fn().mockResolvedValue(mockResult);
 
     const result = await service.queryPoJobList(requestDto);
-    expect(poJobsService.queryPoJobList).toHaveBeenCalledWith(conditionPoJob, conditionPoHeader);
+    expect(poJobsRepository.queryPoJobList).toHaveBeenCalledWith(conditionPoJob, conditionPoHeader);
     expect(result).toEqual(mockResult);
   });
 });

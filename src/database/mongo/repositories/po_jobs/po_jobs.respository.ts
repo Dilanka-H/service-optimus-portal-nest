@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { QueryPoJobListResponse } from '../../interfaces';
 import { PoJobs } from '../../schema/po_jobs.schema';
 import { PoHeaderCondition } from '../po_headers/po_headers.interface';
-import { PoJobCondition, PoJobSetParams } from './po_jobs.interface';
+import { PoJobCondition, PoJobSetParams, QueryPoJobListResponse } from './po_jobs.interface';
 
 @Injectable()
 export class PoJobsRepository {
@@ -12,7 +11,10 @@ export class PoJobsRepository {
 
   async reservePoJobToProcess(condition: PoJobCondition, setParams: PoJobSetParams): Promise<PoJobs> {
     return this.PoJobsModel.findOneAndUpdate(
-      condition,
+      {
+        jobId: condition.jobId,
+        $or: [{ 'lockInfo.lockedBy': '' }, { 'lockInfo.lockedBy': condition.username }],
+      },
       {
         $set: {
           'lockInfo.lockedBy': setParams.lockedBy,
@@ -30,11 +32,23 @@ export class PoJobsRepository {
   async queryPoJobList(
     conditionPoJob: PoJobCondition,
     conditionPoHeader: PoHeaderCondition,
+    searchIns: string,
+    flagPrintPO: boolean,
   ): Promise<QueryPoJobListResponse[]> {
     return this.PoJobsModel.aggregate([
-      {
-        $match: conditionPoJob,
-      },
+      ...(searchIns != ''
+        ? [
+            {
+              $match: {
+                $or: [{ jobId: searchIns }, { PONumber: searchIns }],
+              },
+            },
+          ]
+        : [
+            {
+              $match: conditionPoJob,
+            },
+          ]),
       {
         $lookup: {
           from: 'po_headers',
@@ -54,13 +68,40 @@ export class PoJobsRepository {
           ...(conditionPoHeader.status ? { 'poHeader.status': conditionPoHeader.status } : ''),
           ...(conditionPoHeader.Material ? { 'poHeader.Material': conditionPoHeader.Material } : ''),
           ...(conditionPoHeader.Description ? { 'poHeader.Description': conditionPoHeader.Description } : ''),
+          ...(conditionPoHeader.SalesOrder ? { 'poHeader.SalesOrder': conditionPoHeader.SalesOrder } : ''),
         },
       },
+      ...(flagPrintPO
+        ? [
+            {
+              $lookup: {
+                from: 'po_serials',
+                localField: 'jobId',
+                foreignField: 'jobId',
+                as: 'poSerial',
+              },
+            },
+            {
+              $unwind: {
+                path: '$poSerial',
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+          ]
+        : []),
       {
         $lookup: {
           from: 'master_customers',
-          localField: 'poHeader.BPCustomer',
-          foreignField: 'SAPCode',
+          let: { bpCustomer: '$poHeader.BPCustomer' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [{ $eq: ['$SAPCode', '$$bpCustomer'] }, { $ne: ['$SAPCode', ''] }, { $ne: ['$SAPCode', null] }],
+                },
+              },
+            },
+          ],
           as: 'masterCustomer',
         },
       },
@@ -73,46 +114,86 @@ export class PoJobsRepository {
       {
         $project: {
           PONumber: 1,
+          POItem: '$poHeader.POItem',
           PODate: '$poHeader.PODate',
-          POStatus: '$poHeader.POStatus',
+          POStatus: '$poHeader.status',
+          POStatusDate: '$poHeader.lastUpdate',
           PRNumber: '$poHeader.PRNumber',
+          PRItem: '$poHeader.PRItem',
           jobId: 1,
           jobStatus: 1,
-          totalQty: '$poHeader.POQtyPlanUsageQty',
+          jobStatusDate: '$lastUpdate',
+          PRtotalQty: '$poHeader.PRQty',
+          totalQty: '$totalQuantity',
           quantityInfo: 1,
           DeliveryDate: '$poHeader.DeliveryDate',
-          PrematchOption: '$poHeader.PrematchOption',
-          PrematchDate: '$poHeader.PrematchDate',
-          Material: '$poHeader.Material',
-          Description: '$poHeader.Description',
+          materialPO: '$poHeader.Material',
+          descriptionPO: '$poHeader.Description',
+          eanCodePO: '$poHeader.EAN_UPC_PC',
+          eanCarton: '$poHeader.EAN_UPC_CAR',
           Plant: '$poHeader.Plant',
+          Storagelocation: '$poHeader.Storagelocation',
+          SalesOrder: '$poHeader.SalesOrder',
+          SalesOrderItem: '$poHeader.SalesOrderItem',
           SIMGroup: '$poHeader.SIMGroup',
-          Network: '$poHeader.Network',
-          SIMType: '$poHeader.SIMType',
-          Pack: '$poHeader.Pack',
           customerName: { $ifNull: ['$masterCustomer.customerName', ''] },
           BPCustomer: '$poHeader.BPCustomer',
-          SalesOrder: '$poHeader.SalesOrder',
           Remark: '$poHeader.Remark',
           numberInfo: {
             NumberStatus: '$poHeader.NumberStatus',
-            Classify: '$poHeader.Classify',
-            Pattern: '$poHeader.Pattern',
-            LocationName: '$poHeader.LocationName',
-            LuckyName: '$poHeader.LuckyName',
-            LuckyType: '$poHeader.LuckyType',
+            NumberStatus_K: '$poHeader.NumberStatus_K',
             NumberType: '$poHeader.NumberType',
+            NumberType_K: '$poHeader.NumberType_K',
+            Classify: '$poHeader.Classify',
+            Classify_K: '$poHeader.Classify_K',
+            Pattern: '$poHeader.Pattern',
+            Pattern_K: '$poHeader.Pattern_K',
+            LuckyName: '$poHeader.LuckyName',
+            LuckyName_K: '$poHeader.LuckyName_K',
+            LuckyType: '$poHeader.LuckyType',
+            LuckyType_K: '$poHeader.LuckyType_K',
+            Pack: '$poHeader.Pack',
+            Pack_K: '$poHeader.Pack_K',
+            SIMType: '$poHeader.SIMType',
+            SIMType_K: '$poHeader.SIMType_K',
+            Network: '$poHeader.Network',
+            Network_K: '$poHeader.Network_K',
             ExpireDate: '$poHeader.ExpireDate',
+            LocationName: '$poHeader.LocationName',
           },
           inspectInfo: 1,
           GIGRInfo: 1,
+          PrematchOption: '$poHeader.PrematchOption',
+          PrematchDate: '$poHeader.PrematchDate',
           prematchEndTime: 1,
           BOMCode: 1,
           BOMDesc: 1,
           machineNo: 1,
-          Pattern_K: '$poHeader.Pattern_K',
-          NumberStatus: '$poHeader.NumberStatus',
-          eanCode: '$poHeader.EAN_UPC_PC',
+          serialList: flagPrintPO
+            ? {
+                $cond: {
+                  if: { $gt: [{ $size: '$poSerial.prematchInfoList' }, 0] },
+                  then: {
+                    $map: {
+                      input: '$poSerial.prematchInfoList',
+                      as: 'item',
+                      in: '$$item.simSerialNo',
+                    },
+                  },
+                  else: {
+                    $map: {
+                      input: '$poSerial.DSAInfoList',
+                      as: 'item',
+                      in: '$$item.simSerialNo',
+                    },
+                  },
+                },
+              }
+            : [],
+          unitofMeasure: '$poHeader.UnitofMeasure',
+          simProject: '$poHeader.SIMProject',
+          lastUpdate: '$lastUpdate',
+          updatedBy: '$updatedBy',
         },
       },
     ]).exec();

@@ -1,4 +1,4 @@
-export interface IMasterCustomerCondition {
+export interface MasterCustomerCondition {
   SAPCode?: string;
   customerName?: string;
   'eSim.expireDate'?: { $gte?: string; $lte?: string };
@@ -6,7 +6,7 @@ export interface IMasterCustomerCondition {
   products?: string;
 }
 
-export interface IMasterCustomerSetParams {
+export interface MasterCustomerSetParams {
   SAPCode?: string;
   customerName?: string;
   categoryCode?: number;

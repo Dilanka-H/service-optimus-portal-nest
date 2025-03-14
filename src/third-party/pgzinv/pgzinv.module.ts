@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ConfirmPreparationServiceService } from './confirm-preparation.service/confirm-preparation.service.service';
 import { PgzinvService } from './pgzinv.service';
+import { ConfirmPreparationService } from './resources/confirm-preparation/confirm-preparation.service';
 
 @Module({
-  providers: [ConfirmPreparationServiceService, PgzinvService]
+  providers: [ConfirmPreparationService, PgzinvService],
 })
 export class PgzinvModule {}

@@ -4,22 +4,12 @@ import * as dayjs from 'dayjs';
 import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
 import { Model } from 'mongoose';
-import {
-  RESULT_FAIL_MESSAGE,
-  RESULT_NOT_FOUND_MESSAGE,
-  RESULT_SUCCESS_MESSAGE,
-  STATUS_CANCELED,
-  STATUS_ON_PROCESS,
-  TIMEZONE_THAI,
-} from 'src/common/constants';
-import {
-  IPoHeaderCondition,
-  IPoHeaderSetParams,
-  IPoJobCondition,
-  IPoJobSetParams,
-} from 'src/common/interfaces/database_domain.interface';
+import { RESULT_FAIL_MESSAGE, RESULT_NOT_FOUND_MESSAGE, TIMEZONE_THAI } from 'src/common/constants';
+import { setParams } from 'src/common/utils';
 import { MongoService } from 'src/database/mongo/mongo.service';
-import { PoJobsRepository } from 'src/database/mongo/repositories/po_jobs.service';
+import { PoHeaderCondition, PoHeaderSetParams } from 'src/database/mongo/repositories/po_headers/po_headers.interface';
+import { PoJobCondition, PoJobSetParams } from 'src/database/mongo/repositories/po_jobs/po_jobs.interface';
+import { PoJobsRepository } from 'src/database/mongo/repositories/po_jobs/po_jobs.respository';
 import { PoHeaders, PoHeadersDocument } from 'src/database/mongo/schema/po_headers.schema';
 import { PoJobs, PoJobsDocument } from 'src/database/mongo/schema/po_jobs.schema';
 import { ReservePoJobToProcessDto } from 'src/domain/po-order/dto/reserve-po-job-to-process.dto';
@@ -33,81 +23,52 @@ export class ReservePoJobToProcessService {
   constructor(
     @InjectModel(PoJobs.name) private PoJobsModel: Model<PoJobsDocument>,
     @InjectModel(PoHeaders.name) private PoHeadersModel: Model<PoHeadersDocument>,
-    private poJobsService: PoJobsRepository,
+    private poJobsRepository: PoJobsRepository,
     private mongoService: MongoService,
   ) {}
 
   async reservePoJobToProcess(reservePoJobToProcessDto: ReservePoJobToProcessDto) {
-    const condition: IPoJobCondition = {} as IPoJobCondition;
-    const setParams: IPoJobSetParams = {} as IPoJobSetParams;
+    const username = reservePoJobToProcessDto.tokenUser;
+    const conditionReserve: PoJobCondition = {} as PoJobCondition;
+    const setParamsReserve: PoJobSetParams = { updatedBy: username };
     const response: IReservePoJobToProcessResponse[] = [];
 
     for (const jobId of reservePoJobToProcessDto.jobId) {
-      condition.jobId = jobId;
-      condition['lockInfo.lockedBy'] = '';
+      const currentDate = dayjs.tz(Date.now(), TIMEZONE_THAI).utc().toISOString();
+      conditionReserve.jobId = jobId;
       if (reservePoJobToProcessDto.reserveFlag) {
-        setParams.lockedBy = reservePoJobToProcessDto.tokenUser;
-        setParams.lockedDateTime = dayjs.tz(Date.now(), TIMEZONE_THAI).utc().toISOString();
+        setParamsReserve.lockedBy = reservePoJobToProcessDto.tokenUser;
+        setParamsReserve.lockedDateTime = currentDate;
       } else {
-        setParams.lockedBy = '';
-        setParams.lockedDateTime = '';
+        setParamsReserve.lockedBy = '';
+        setParamsReserve.lockedDateTime = '';
       }
-      const result = await this.poJobsService.reservePoJobToProcess(condition, setParams);
+      const result = await this.poJobsRepository.reservePoJobToProcess(conditionReserve, setParamsReserve);
       if (result) {
-        try {
-          const lastUpdate = dayjs.tz(Date.now(), TIMEZONE_THAI).utc().toISOString();
-          const conditionPOHeader: IPoHeaderCondition = { PONumber: result.PONumber };
-          const conditionPOJob: IPoJobCondition = { jobId: jobId };
-          const setParamsPoHeader: IPoHeaderSetParams = { lastUpdate: lastUpdate };
-          const setParamsPoJob: IPoJobSetParams = { lastUpdate: lastUpdate };
+        const conditionPoJob: PoJobCondition = {} as PoJobCondition;
+        const conditionPoHeader: PoHeaderCondition = { PONumber: jobId.split('_')[0] } as PoHeaderCondition;
+        const setParamsPoJob: PoJobSetParams = { updatedBy: username, lastUpdate: currentDate };
+        const setParamsPoHeader: PoHeaderSetParams = { updatedBy: username, lastUpdate: currentDate };
 
-          if (!reservePoJobToProcessDto.SIMGroup) {
-            const result = await this.mongoService.findDocuments(this.PoHeadersModel, conditionPOHeader);
-            if (result && result.length > 0) {
-              reservePoJobToProcessDto.SIMGroup = result[0].SIMGroup;
-            }
-          }
-          switch (reservePoJobToProcessDto.action) {
-            case 'inspect1':
-              setParamsPoJob['inspectInfo.inspectStatus1'] = STATUS_ON_PROCESS;
-              break;
-            case 'inspect2':
-              setParamsPoJob['inspectInfo.inspectStatus2'] = STATUS_ON_PROCESS;
-              break;
-            case 'process':
-              setParamsPoJob.jobStatus = STATUS_ON_PROCESS;
-              if (reservePoJobToProcessDto.SIMGroup != 'PSIM') {
-                setParamsPoHeader.status = STATUS_ON_PROCESS;
-              }
-              break;
-            case 'cancel':
-              setParamsPoJob.jobStatus = STATUS_CANCELED;
-              if (reservePoJobToProcessDto.SIMGroup != 'PSIM') {
-                setParamsPoHeader.status = STATUS_CANCELED;
-              }
-              break;
-            default:
-              break;
-          }
+        setParams(setParamsPoHeader, 'status', reservePoJobToProcessDto.POStatus);
 
-          if (Object.keys(setParamsPoJob) && Object.keys(setParamsPoJob).length != 0) {
-            await this.mongoService.updateManyDocuments(this.PoJobsModel, conditionPOJob, setParamsPoJob);
-          }
-          if (setParamsPoHeader.status) {
-            await this.mongoService.updateManyDocuments(this.PoHeadersModel, conditionPOHeader, setParamsPoHeader);
-          }
-          response.push({ jobId: jobId, lockedBy: reservePoJobToProcessDto.tokenUser, result: RESULT_SUCCESS_MESSAGE });
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (err) {
-          response.push({ jobId: jobId, lockedBy: reservePoJobToProcessDto.tokenUser, result: RESULT_FAIL_MESSAGE });
+        setParams(setParamsPoJob, 'jobStatus', reservePoJobToProcessDto.jobStatus);
+        setParams(setParamsPoJob, 'inspectInfo.inspectStatus1', reservePoJobToProcessDto.inspectStatus1);
+        setParams(setParamsPoJob, 'inspectInfo.inspectDate1', reservePoJobToProcessDto.inspectStatus1, () => currentDate);
+        setParams(setParamsPoJob, 'inspectInfo.inspectUser1', reservePoJobToProcessDto.inspectStatus1, () => username);
+        setParams(setParamsPoJob, 'inspectInfo.inspectStatus2', reservePoJobToProcessDto.inspectStatus2);
+        setParams(setParamsPoJob, 'inspectInfo.inspectDate2', reservePoJobToProcessDto.inspectStatus2, () => currentDate);
+        setParams(setParamsPoJob, 'inspectInfo.inspectUser2', reservePoJobToProcessDto.inspectStatus2, () => username);
+
+        if (Object.keys(setParamsPoJob) && Object.keys(setParamsPoJob).length > 2) {
+          await this.mongoService.updateManyDocuments(this.PoJobsModel, conditionPoJob, setParamsPoJob);
+        }
+        if (setParamsPoHeader.status) {
+          await this.mongoService.updateManyDocuments(this.PoHeadersModel, conditionPoHeader, setParamsPoHeader);
         }
       } else {
-        const findCondition: IPoJobCondition = { jobId: jobId };
-        const existingDocument = await this.mongoService.findDocuments(
-          this.PoJobsModel,
-          findCondition,
-          'jobId lockInfo',
-        );
+        const findCondition: PoJobCondition = { jobId: jobId };
+        const existingDocument = await this.mongoService.findDocuments(this.PoJobsModel, findCondition, 'jobId lockInfo');
 
         if (existingDocument && existingDocument.length > 0) {
           response.push({

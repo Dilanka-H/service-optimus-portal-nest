@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongoConfiguration } from 'src/config/mongo.config';
 import { MongoService } from './mongo.service';
-import { MastercustomersService } from './repositories/mastercustomers/mastercustomers.repository';
+import { MasterCustomersRepository } from './repositories/mastercustomers/mastercustomers.repository';
 import { OptimusJobListsRepository } from './repositories/optimusjoblists/optimusjoblists.repository';
-import { OptimusomniordersService } from './repositories/optimusomniorders/optimusomniorders.repository';
-import { OptimusordersService } from './repositories/optimusorders/optimusorders.repository';
+import { OptimusOmniOrdersRepository } from './repositories/optimusomniorders/optimusomniorders.repository';
+import { OptimusOrdersRepository } from './repositories/optimusorders/optimusorders.repository';
 import { PoHeadersRepository } from './repositories/po_headers/po_headers.respository';
 import { PoJobsRepository } from './repositories/po_jobs/po_jobs.respository';
 import { SaleOrderItemsRepository } from './repositories/saleorderitems/saleorderitems.repository';
@@ -246,9 +246,9 @@ import {
     OptimusJobListsRepository,
     SaleOrderItemsRepository,
     SaleOrderJobListsRepository,
-    OptimusordersService,
-    MastercustomersService,
-    OptimusomniordersService,
+    OptimusOrdersRepository,
+    MasterCustomersRepository,
+    OptimusOmniOrdersRepository,
   ],
   exports: [MongooseModule, MongoService, OptimusJobListsRepository, PoHeadersRepository, PoJobsRepository],
 })

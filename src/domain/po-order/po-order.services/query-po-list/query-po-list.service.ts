@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import * as dayjs from 'dayjs';
 import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
-import { TIMEZONE_THAI } from 'src/common/constants';
-import { IPoHeaderCondition } from 'src/common/interfaces/database_domain.interface';
-import { PoHeadersService } from 'src/database/mongo/repositories/po_headers.service';
+import { setDateRangeConditionDate, setParams } from 'src/common/utils';
+import { PoHeaderCondition } from 'src/database/mongo/repositories/po_headers/po_headers.interface';
+import { PoHeadersRepository } from 'src/database/mongo/repositories/po_headers/po_headers.respository';
 import { QueryPoListDto } from 'src/domain/po-order/dto/query-po-list.dto';
 
 dayjs.extend(utc);
@@ -12,38 +12,20 @@ dayjs.extend(timezone);
 
 @Injectable()
 export class QueryPoListService {
-  constructor(private poHeadersService: PoHeadersService) {}
+  constructor(private poHeadersRepository: PoHeadersRepository) {}
 
   async queryPoList(queryPoListDto: QueryPoListDto) {
-    const condition: IPoHeaderCondition = {};
+    const condition: PoHeaderCondition = {};
 
-    if (queryPoListDto.PONumber) {
-      condition.PONumber = queryPoListDto.PONumber;
-    }
-    if (queryPoListDto.PRNumber) {
-      condition.PRNumber = queryPoListDto.PRNumber;
-    }
-    if (queryPoListDto.Material) {
-      condition.Material = queryPoListDto.Material;
-    }
-    if (queryPoListDto.Description) {
-      condition.Description = queryPoListDto.Description;
-    }
-    if (queryPoListDto.excludeStatus && queryPoListDto.excludeStatus.length > 0) {
-      condition.status = { $nin: queryPoListDto.excludeStatus };
-    }
-    if (queryPoListDto.POStatus) {
-      condition.status = { $in: queryPoListDto.POStatus };
-    }
-    if (queryPoListDto.SIMGroup) {
-      condition.SIMGroup = { $in: queryPoListDto.SIMGroup };
-    }
-    if (queryPoListDto.POstartDate && queryPoListDto.POendDate) {
-      condition.PODate = {
-        $gte: dayjs.tz(queryPoListDto.POstartDate, TIMEZONE_THAI).startOf('day').utc().toDate(),
-        $lte: dayjs.tz(queryPoListDto.POendDate, TIMEZONE_THAI).endOf('day').utc().toDate(),
-      };
-    }
-    return await this.poHeadersService.queryPoList(condition);
+    setParams(condition, 'PONumber', queryPoListDto.PONumber);
+    setParams(condition, 'PRNumber', queryPoListDto.PRNumber);
+    setParams(condition, 'status', queryPoListDto.excludeStatus, (v) => ({ $nin: v }));
+    setParams(condition, 'status', queryPoListDto.POStatus, (v) => ({ $in: v }));
+    setParams(condition, 'SIMGroup', queryPoListDto.SIMGroup, (v) => ({ $in: v }));
+    setParams(condition, 'Material', queryPoListDto.Material);
+    setParams(condition, 'Description', queryPoListDto.Description);
+    setDateRangeConditionDate(condition, 'PODate', queryPoListDto.POstartDate, queryPoListDto.POendDate);
+
+    return await this.poHeadersRepository.queryPoList(condition);
   }
 }
