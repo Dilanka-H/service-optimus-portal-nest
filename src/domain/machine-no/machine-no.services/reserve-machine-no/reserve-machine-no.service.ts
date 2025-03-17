@@ -10,19 +10,21 @@ import { IReserveMachineNoResponse } from '../../interfaces';
 
 @Injectable()
 export class ReserveMachineNoService {
-    constructor(
-        @InjectModel(OptimusConfigs.name) private OptimusConfigsModel: Model<OptimusConfigsDocument>,
-        private mongoService: MongoService
-    ){}
+  constructor(
+    @InjectModel(OptimusConfigs.name) private OptimusConfigsModel: Model<OptimusConfigsDocument>,
+    private mongoService: MongoService,
+  ) {}
 
-    async reserveMachineNo(reserveMachineNoDto: ReserveMachineNoDto) {
-        const condition: IOptimusConfigCondition = {configName: OPTIMUS_CONFIG_PSIM_MACHINES, "Machines.machineNo": reserveMachineNoDto.machineNo}
-        const setParams: IOptimusConfigSetParams = {"Machines.$.user": reserveMachineNoDto.reserveFlag ? reserveMachineNoDto.updateBy : ""}
-        const response: IReserveMachineNoResponse = {result: RESULT_FAIL_MESSAGE}
+  async reserveMachineNo(reserveMachineNoDto: ReserveMachineNoDto) {
+    const condition: IOptimusConfigCondition = { configName: OPTIMUS_CONFIG_PSIM_MACHINES, 'Machines.machineNo': reserveMachineNoDto.machineNo };
+    const setObjectParams: IOptimusConfigSetParams = { 'Machines.$.user': reserveMachineNoDto.reserveFlag ? reserveMachineNoDto.updateBy : '' };
+    const response: IReserveMachineNoResponse = { result: RESULT_FAIL_MESSAGE };
 
-        const result = await this.mongoService.updateManyDocuments(this.OptimusConfigsModel, condition, setParams)
+    const result = await this.mongoService.updateManyDocuments(this.OptimusConfigsModel, condition, setObjectParams);
 
-        if (result.modifiedCount == 1) {response.result = RESULT_SUCCESS_MESSAGE}
-        return response
+    if (result.modifiedCount == 1) {
+      response.result = RESULT_SUCCESS_MESSAGE;
     }
+    return response;
+  }
 }

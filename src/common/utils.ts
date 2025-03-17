@@ -60,7 +60,7 @@ export function generateTransactionId(): any {
   return transactionId;
 }
 
-export const setParams = (source, key, value, transform = (v) => v) => {
+export const setObjectParams = <T>(source: Partial<T>, key: keyof T, value: any, transform = (v) => v) => {
   if (value !== undefined && value !== null) {
     source[key] = transform(value);
   }

@@ -76,7 +76,7 @@ describe('PoOrderController', () => {
     const dto: UpdatePoJobListDto = {
       jobId: '1233456232323232',
     } as UpdatePoJobListDto;
-    const result = await controller.updatePoJobList(dto);
+    const result = await controller.updatePoJobList('user', dto);
     expect(updatePoJobListService.updatePoJobList).toHaveBeenCalledWith(dto);
     expect(result).toBe('mockQueryResult');
   });

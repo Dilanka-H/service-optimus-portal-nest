@@ -17,10 +17,16 @@ export interface PoJobSetParams {
   jobStatus?: string;
   'inspectInfo.inspectStatus1'?: string;
   'inspectInfo.inspectStatus2'?: string;
+  'inspectInfo.inspectDate1'?: string;
+  'inspectInfo.inspectDate2'?: string;
+  'inspectInfo.inspectUser1'?: string;
+  'inspectInfo.inspectUser2'?: string;
+  'inspectInfo.inspect2IgnoreReason'?: string;
   lastUpdate?: string;
-  lockedBy?: string;
-  lockedDateTime?: string;
+  'lockInfo.lockedBy'?: string;
+  'lockInfo.lockedDateTime'?: string;
   updatedBy?: string;
+  flagSendMail?: boolean;
 }
 
 export interface QueryPoJobListResponse {

@@ -5,7 +5,7 @@ import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
 import { Model } from 'mongoose';
 import { RESULT_FAIL_MESSAGE, RESULT_NOT_FOUND_MESSAGE, TIMEZONE_THAI } from 'src/common/constants';
-import { setParams } from 'src/common/utils';
+import { setObjectParams } from 'src/common/utils';
 import { MongoService } from 'src/database/mongo/mongo.service';
 import { PoHeaderCondition, PoHeaderSetParams } from 'src/database/mongo/repositories/po_headers/po_headers.interface';
 import { PoJobCondition, PoJobSetParams } from 'src/database/mongo/repositories/po_jobs/po_jobs.interface';
@@ -37,11 +37,11 @@ export class ReservePoJobToProcessService {
       const currentDate = dayjs.tz(Date.now(), TIMEZONE_THAI).utc().toISOString();
       conditionReserve.jobId = jobId;
       if (reservePoJobToProcessDto.reserveFlag) {
-        setParamsReserve.lockedBy = reservePoJobToProcessDto.tokenUser;
-        setParamsReserve.lockedDateTime = currentDate;
+        setParamsReserve['lockInfo.lockedBy'] = reservePoJobToProcessDto.tokenUser;
+        setParamsReserve['lockInfo.lockedDateTime'] = currentDate;
       } else {
-        setParamsReserve.lockedBy = '';
-        setParamsReserve.lockedDateTime = '';
+        setParamsReserve['lockInfo.lockedBy'] = '';
+        setParamsReserve['lockInfo.lockedDateTime'] = '';
       }
       const result = await this.poJobsRepository.reservePoJobToProcess(conditionReserve, setParamsReserve);
       if (result) {
@@ -50,15 +50,15 @@ export class ReservePoJobToProcessService {
         const setParamsPoJob: PoJobSetParams = { updatedBy: username, lastUpdate: currentDate };
         const setParamsPoHeader: PoHeaderSetParams = { updatedBy: username, lastUpdate: currentDate };
 
-        setParams(setParamsPoHeader, 'status', reservePoJobToProcessDto.POStatus);
+        setObjectParams(setParamsPoHeader, 'status', reservePoJobToProcessDto.POStatus);
 
-        setParams(setParamsPoJob, 'jobStatus', reservePoJobToProcessDto.jobStatus);
-        setParams(setParamsPoJob, 'inspectInfo.inspectStatus1', reservePoJobToProcessDto.inspectStatus1);
-        setParams(setParamsPoJob, 'inspectInfo.inspectDate1', reservePoJobToProcessDto.inspectStatus1, () => currentDate);
-        setParams(setParamsPoJob, 'inspectInfo.inspectUser1', reservePoJobToProcessDto.inspectStatus1, () => username);
-        setParams(setParamsPoJob, 'inspectInfo.inspectStatus2', reservePoJobToProcessDto.inspectStatus2);
-        setParams(setParamsPoJob, 'inspectInfo.inspectDate2', reservePoJobToProcessDto.inspectStatus2, () => currentDate);
-        setParams(setParamsPoJob, 'inspectInfo.inspectUser2', reservePoJobToProcessDto.inspectStatus2, () => username);
+        setObjectParams(setParamsPoJob, 'jobStatus', reservePoJobToProcessDto.jobStatus);
+        setObjectParams(setParamsPoJob, 'inspectInfo.inspectStatus1', reservePoJobToProcessDto.inspectStatus1);
+        setObjectParams(setParamsPoJob, 'inspectInfo.inspectDate1', reservePoJobToProcessDto.inspectStatus1, () => currentDate);
+        setObjectParams(setParamsPoJob, 'inspectInfo.inspectUser1', reservePoJobToProcessDto.inspectStatus1, () => username);
+        setObjectParams(setParamsPoJob, 'inspectInfo.inspectStatus2', reservePoJobToProcessDto.inspectStatus2);
+        setObjectParams(setParamsPoJob, 'inspectInfo.inspectDate2', reservePoJobToProcessDto.inspectStatus2, () => currentDate);
+        setObjectParams(setParamsPoJob, 'inspectInfo.inspectUser2', reservePoJobToProcessDto.inspectStatus2, () => username);
 
         if (Object.keys(setParamsPoJob) && Object.keys(setParamsPoJob).length > 2) {
           await this.mongoService.updateManyDocuments(this.PoJobsModel, conditionPoJob, setParamsPoJob);

@@ -4,15 +4,10 @@ import * as dayjs from 'dayjs';
 import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
 import { Model } from 'mongoose';
-import {
-  RESULT_FAIL_MESSAGE,
-  RESULT_NOT_FOUND_MESSAGE,
-  STATUS_CANCELED,
-  STATUS_ON_PROCESS,
-} from 'src/common/constants';
-import { IPoJobCondition } from 'src/common/interfaces/database_domain.interface';
+import { RESULT_FAIL_MESSAGE, RESULT_NOT_FOUND_MESSAGE, STATUS_CANCELED, STATUS_ON_PROCESS } from 'src/common/constants';
 import { MongoService } from 'src/database/mongo/mongo.service';
-import { PoJobsRepository } from 'src/database/mongo/repositories/po_jobs.service';
+import { PoJobCondition } from 'src/database/mongo/repositories/po_jobs/po_jobs.interface';
+import { PoJobsRepository } from 'src/database/mongo/repositories/po_jobs/po_jobs.respository';
 import { PoHeaders, PoHeadersDocument } from 'src/database/mongo/schema/po_headers.schema';
 import { PoJobs, PoJobsDocument } from 'src/database/mongo/schema/po_jobs.schema';
 import { ReservePoJobToProcessDto } from '../../dto/reserve-po-job-to-process.dto';
@@ -56,22 +51,20 @@ describe('ReservePoJobToProcessService', () => {
   });
 
   const testCases = [
-    { reserveFlag: true, setParams: { lockedBy: 'testUser', lockedDateTime: fixedDate } },
-    { reserveFlag: false, setParams: { lockedBy: '', lockedDateTime: '' } },
+    { reserveFlag: true, setObjectParams: { lockedBy: 'testUser', lockedDateTime: fixedDate } },
+    { reserveFlag: false, setObjectParams: { lockedBy: '', lockedDateTime: '' } },
   ];
 
-  testCases.forEach(({ reserveFlag, setParams }) => {
+  testCases.forEach(({ reserveFlag, setObjectParams }) => {
     it(`should call reservePoJobToProcess with correct condition when reserveFlag is ${reserveFlag}`, async () => {
       const request: ReservePoJobToProcessDto = {
         jobId: ['1234'],
-        action: 'on-process',
         reserveFlag,
-        SIMGroup: 'PSIM',
         tokenUser: 'testUser',
       };
-      const condition: IPoJobCondition = { jobId: request.jobId[0], 'lockInfo.lockedBy': '' };
+      const condition: PoJobCondition = { jobId: request.jobId[0], 'lockInfo.lockedBy': '' };
       await service.reservePoJobToProcess(request);
-      expect(poJobsService.reservePoJobToProcess).toHaveBeenCalledWith(condition, setParams);
+      expect(poJobsService.reservePoJobToProcess).toHaveBeenCalledWith(condition, setObjectParams);
     });
   });
 
@@ -142,11 +135,7 @@ describe('ReservePoJobToProcessService', () => {
       poJobsService.reservePoJobToProcess = jest.fn().mockResolvedValue({ PONumber: '1234' });
 
       await service.reservePoJobToProcess(request);
-      expect(mongoService.updateManyDocuments).toHaveBeenCalledWith(
-        mockPoJobsModel,
-        { jobId: '1234' },
-        { [updateField]: STATUS_ON_PROCESS, lastUpdate: fixedDate },
-      );
+      expect(mongoService.updateManyDocuments).toHaveBeenCalledWith(mockPoJobsModel, { jobId: '1234' }, { [updateField]: STATUS_ON_PROCESS, lastUpdate: fixedDate });
     });
 
     it.each([
@@ -164,32 +153,24 @@ describe('ReservePoJobToProcessService', () => {
         setParamsJob: { jobStatus: STATUS_CANCELED, lastUpdate: fixedDate },
         setParamsHeader: { status: STATUS_CANCELED, lastUpdate: fixedDate },
       },
-    ])(
-      'should update po_job and po_header if action is "process"|"cancel" and SIMGroup is not PSIM',
-      async ({ action, conditionJob, conditionHeader, setParamsJob, setParamsHeader }) => {
-        const request = {
-          jobId: ['1234'],
-          action: action,
-          reserveFlag: true,
-          tokenUser: 'testUser',
-          SIMGroup: 'ESIM',
-        };
-        poJobsService.reservePoJobToProcess = jest.fn().mockResolvedValue({ PONumber: '1234' });
+    ])('should update po_job and po_header if action is "process"|"cancel" and SIMGroup is not PSIM', async ({ action, conditionJob, conditionHeader, setParamsJob, setParamsHeader }) => {
+      const request = {
+        jobId: ['1234'],
+        action: action,
+        reserveFlag: true,
+        tokenUser: 'testUser',
+        SIMGroup: 'ESIM',
+      };
+      poJobsService.reservePoJobToProcess = jest.fn().mockResolvedValue({ PONumber: '1234' });
 
-        await service.reservePoJobToProcess(request);
-        expect(mongoService.updateManyDocuments).toHaveBeenCalledWith(mockPoJobsModel, conditionJob, setParamsJob);
-        expect(mongoService.updateManyDocuments).toHaveBeenCalledWith(
-          mockPoHeadersModel,
-          conditionHeader,
-          setParamsHeader,
-        );
-      },
-    );
+      await service.reservePoJobToProcess(request);
+      expect(mongoService.updateManyDocuments).toHaveBeenCalledWith(mockPoJobsModel, conditionJob, setParamsJob);
+      expect(mongoService.updateManyDocuments).toHaveBeenCalledWith(mockPoHeadersModel, conditionHeader, setParamsHeader);
+    });
 
     it('should send correct response if "catch" is triggered', async () => {
       const request: ReservePoJobToProcessDto = {
         jobId: ['1234'],
-        action: 'cancel',
         reserveFlag: true,
         tokenUser: 'testUser',
       };

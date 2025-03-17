@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { OptimusJobListsService } from '../../database/mongo/repositories/optimusjoblists.service';
+import { OptimusJobListsRepository } from 'src/database/mongo/repositories/optimusjoblists/optimusjoblists.repository';
 import { UpdateJobListDto } from './dto/update-job-list.dto';
 import { SaleOrderService } from './sale-order.service';
 
@@ -43,7 +43,7 @@ describe('SaleOrderService', () => {
       providers: [
         SaleOrderService,
         {
-          provide: OptimusJobListsService,
+          provide: OptimusJobListsRepository,
           useValue: mockOptimusJobListsService,
         },
       ],
@@ -81,10 +81,7 @@ describe('SaleOrderService', () => {
       const result = await service.updateJobList(updateJobListDto);
 
       expect(result).toEqual(mockResult);
-      expect(mockOptimusJobListsService.updateJobList).toHaveBeenCalledWith(
-        updateJobListDto.condition,
-        updateJobListDto.updateData,
-      );
+      expect(mockOptimusJobListsService.updateJobList).toHaveBeenCalledWith(updateJobListDto.condition, updateJobListDto.updateData);
     });
   });
 

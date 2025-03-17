@@ -10,27 +10,27 @@ import { QueryPoJobListService } from './po-order.services/query-po-job-list/que
 
 @Controller('po-order')
 export class PoOrderController {
-    constructor(
-        private queryPoListService: QueryPoListService,
-        private queryPoJobListService: QueryPoJobListService,
-        private updatePoJobListService: UpdatePoJobListService,
-        private reservePoJobToProcessService: ReservePoJobToProcessService
-    ){}
-    @Post('queryPOList')
-        async queryPoList(@Body() queryPoListDto: QueryPoListDto) {
-            return this.queryPoListService.queryPoList(queryPoListDto);
-    }
-    @Post('queryPOJobList')
-        async queryPoJobList(@Body() queryPoJobListDto: QueryPoJobListDto) {
-            return this.queryPoJobListService.queryPoJobList(queryPoJobListDto);
-    }  
-    @Post('updatePOJobList')
-        async updatePoJobList(@Body() updatePoJobListDto: UpdatePoJobListDto) {
-            return this.updatePoJobListService.updatePoJobList(updatePoJobListDto);
-    } 
-    @Post('reservePOJobToProcess')
-        async reservePoJobToProcess(@Headers('token-user') tokenUser: string, @Body() reservePoJobToProcessDto: ReservePoJobToProcessDto) {
-            reservePoJobToProcessDto.tokenUser = tokenUser
-            return this.reservePoJobToProcessService.reservePoJobToProcess(reservePoJobToProcessDto);
-    } 
+  constructor(
+    private queryPoListService: QueryPoListService,
+    private queryPoJobListService: QueryPoJobListService,
+    private updatePoJobListService: UpdatePoJobListService,
+    private reservePoJobToProcessService: ReservePoJobToProcessService,
+  ) {}
+  @Post('queryPOList')
+  async queryPoList(@Body() queryPoListDto: QueryPoListDto) {
+    return this.queryPoListService.queryPoList(queryPoListDto);
+  }
+  @Post('queryPOJobList')
+  async queryPoJobList(@Body() queryPoJobListDto: QueryPoJobListDto) {
+    return this.queryPoJobListService.queryPoJobList(queryPoJobListDto);
+  }
+  @Post('updatePOJobList')
+  async updatePoJobList(@Headers('token-user') tokenUser: string, @Body() updatePoJobListDto: UpdatePoJobListDto) {
+    return this.updatePoJobListService.updatePoJobList(updatePoJobListDto);
+  }
+  @Post('reservePOJobToProcess')
+  async reservePoJobToProcess(@Headers('token-user') tokenUser: string, @Body() reservePoJobToProcessDto: ReservePoJobToProcessDto) {
+    reservePoJobToProcessDto.tokenUser = tokenUser;
+    return this.reservePoJobToProcessService.reservePoJobToProcess(reservePoJobToProcessDto);
+  }
 }

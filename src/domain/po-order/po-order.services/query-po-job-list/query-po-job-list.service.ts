@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as dayjs from 'dayjs';
 import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
-import { setDateRangeConditionDate, setDateRangeConditionString, setParams } from 'src/common/utils';
+import { setDateRangeConditionDate, setDateRangeConditionString, setObjectParams } from 'src/common/utils';
 import { PoHeaderCondition } from 'src/database/mongo/repositories/po_headers/po_headers.interface';
 import { PoJobCondition } from 'src/database/mongo/repositories/po_jobs/po_jobs.interface';
 import { PoJobsRepository } from 'src/database/mongo/repositories/po_jobs/po_jobs.respository';
@@ -20,22 +20,24 @@ export class QueryPoJobListService {
     const conditionPoJob: PoJobCondition = {};
     const conditionPoHeader: PoHeaderCondition = {};
 
-    setParams(conditionPoJob, 'PONumber', queryPoJobListDto.PONumber);
-    setParams(conditionPoJob, 'jobId', queryPoJobListDto.jobId);
-    setParams(conditionPoJob, 'jobStatus', queryPoJobListDto.excludeStatus, (v) => ({ $nin: v }));
-    setParams(conditionPoJob, 'jobStatus', queryPoJobListDto.jobStatus, (v) => ({ $in: v }));
-    setParams(conditionPoJob, 'inspectInfo.inspectStatus1', queryPoJobListDto.Inspect1?.Inspect1status);
-    setParams(conditionPoJob, 'inspectInfo.inspectStatus2', queryPoJobListDto.Inspect2?.Inspect2status);
-    setDateRangeConditionString(conditionPoJob, 'inspectInfo.inspectDate1', queryPoJobListDto.Inspect1?.Inspect1startDate, queryPoJobListDto.Inspect1?.Inspect1endDate);
+    setObjectParams(conditionPoJob, 'PONumber', queryPoJobListDto.PONumber);
+    setObjectParams(conditionPoJob, 'jobId', queryPoJobListDto.jobId);
+    setObjectParams(conditionPoJob, 'jobStatus', queryPoJobListDto.excludeStatus, (v) => ({
+      $nin: v,
+    }));
+    setObjectParams(conditionPoJob, 'jobStatus', queryPoJobListDto.jobStatus, (v) => ({ $in: v }));
+    setObjectParams(conditionPoJob, 'inspectInfo.inspectStatus1', queryPoJobListDto.Inspect1?.Inspect1status);
+    setObjectParams(conditionPoJob, 'inspectInfo.inspectStatus2', queryPoJobListDto.Inspect2?.Inspect2status);
+    setDateRangeConditionString(conditionPoJob, 'inspectInfo.inspectDate1', queryPoJobListDto.Inspect1?.Inspect1startDate, queryPoJobListDto.Inspect1?.Inspect1startDate);
     setDateRangeConditionString(conditionPoJob, 'inspectInfo.inspectDate2', queryPoJobListDto.Inspect2?.Inspect2startDate, queryPoJobListDto.Inspect2?.Inspect2endDate);
     setDateRangeConditionString(conditionPoJob, 'GIGRInfo.GIGRDate', queryPoJobListDto.GIGR?.GIGRstartDate, queryPoJobListDto.GIGR?.GIGRendDate);
 
-    setParams(conditionPoHeader, 'PRNumber', queryPoJobListDto.PRNumber);
-    setParams(conditionPoHeader, 'status', queryPoJobListDto.POStatus);
-    setParams(conditionPoHeader, 'SalesOrder', queryPoJobListDto.SalesOrder);
-    setParams(conditionPoHeader, 'SIMGroup', queryPoJobListDto.SIMGroup, (v) => ({ $in: v }));
-    setParams(conditionPoHeader, 'Material', queryPoJobListDto.material);
-    setParams(conditionPoHeader, 'Description', queryPoJobListDto.description);
+    setObjectParams(conditionPoHeader, 'PRNumber', queryPoJobListDto.PRNumber);
+    setObjectParams(conditionPoHeader, 'status', queryPoJobListDto.POStatus);
+    setObjectParams(conditionPoHeader, 'SalesOrder', queryPoJobListDto.SalesOrder);
+    setObjectParams(conditionPoHeader, 'SIMGroup', queryPoJobListDto.SIMGroup, (v) => ({ $in: v }));
+    setObjectParams(conditionPoHeader, 'Material', queryPoJobListDto.material);
+    setObjectParams(conditionPoHeader, 'Description', queryPoJobListDto.description);
     setDateRangeConditionDate(conditionPoHeader, 'PODate', queryPoJobListDto.POstartDate, queryPoJobListDto.POendDate);
 
     const result = await this.poJobsService.queryPoJobList(conditionPoJob, conditionPoHeader, queryPoJobListDto.searchIns, queryPoJobListDto.flagPrintPO);

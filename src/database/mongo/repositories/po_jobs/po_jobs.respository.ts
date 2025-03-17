@@ -9,17 +9,14 @@ import { PoJobCondition, PoJobSetParams, QueryPoJobListResponse } from './po_job
 export class PoJobsRepository {
   constructor(@InjectModel(PoJobs.name) private PoJobsModel: Model<PoJobs>) {}
 
-  async reservePoJobToProcess(condition: PoJobCondition, setParams: PoJobSetParams): Promise<PoJobs> {
+  async reservePoJobToProcess(condition: PoJobCondition, setObjectParams: PoJobSetParams): Promise<PoJobs> {
     return this.PoJobsModel.findOneAndUpdate(
       {
         jobId: condition.jobId,
         $or: [{ 'lockInfo.lockedBy': '' }, { 'lockInfo.lockedBy': condition.username }],
       },
       {
-        $set: {
-          'lockInfo.lockedBy': setParams.lockedBy,
-          'lockInfo.lockedDateTime': setParams.lockedDateTime,
-        },
+        $set: setObjectParams,
       },
       {
         returnOriginal: false,
@@ -29,12 +26,7 @@ export class PoJobsRepository {
       .exec();
   }
 
-  async queryPoJobList(
-    conditionPoJob: PoJobCondition,
-    conditionPoHeader: PoHeaderCondition,
-    searchIns: string,
-    flagPrintPO: boolean,
-  ): Promise<QueryPoJobListResponse[]> {
+  async queryPoJobList(conditionPoJob: PoJobCondition, conditionPoHeader: PoHeaderCondition, searchIns: string, flagPrintPO: boolean): Promise<QueryPoJobListResponse[]> {
     return this.PoJobsModel.aggregate([
       ...(searchIns != ''
         ? [
