@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsArray, IsBoolean, IsObject, IsOptional, IsString, Matches, ValidateNested } from 'class-validator';
-import { RequireBothFields } from 'src/common/decorators/validation.decorator';
+import { RequireAtleastOne, RequireBothFields } from 'src/common/decorators/validation.decorator';
 
 export class Inspect1Dto {
   @IsString()
@@ -130,4 +130,7 @@ export class QueryPoJobListDto {
   @IsString()
   @IsOptional()
   searchIns: string = '';
+
+  @RequireAtleastOne(['POstartDate', 'POendDate', 'GIGRstartDate'])
+  ObjectValidation?: string;
 }
